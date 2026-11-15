@@ -104,8 +104,13 @@ namespace MidnightMart.Player
             }
             UpdateHeldItemPosition();
 
-            // Phím E tương tác trực tiếp
-            if (!_isDialogueOpen && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+            // Phím E hoặc Click Chuột Trái (khi không cầm súng/máy quét) tương tác trực tiếp
+            bool ePressed = Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
+            bool isHoldingGun = _inventory != null && _inventory.ActiveSlotItem != null && _inventory.ActiveSlotItem.ItemType == InventoryItemType.Gun;
+            bool isHoldingScanner = _inventory != null && _inventory.ActiveSlotItem != null && _inventory.ActiveSlotItem.ItemType == InventoryItemType.Scanner;
+            bool leftClickPressed = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+
+            if (!_isDialogueOpen && (ePressed || (leftClickPressed && !isHoldingGun && !isHoldingScanner)))
             {
                 OnInteractDirect();
             }

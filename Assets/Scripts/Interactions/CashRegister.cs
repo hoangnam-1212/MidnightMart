@@ -77,14 +77,35 @@ namespace MidnightMart.Interactions
             GameEvents.OnCustomerPaid -= HandleCustomerPaid;
         }
 
+        public Customer.CustomerNPC GetWaitingCustomer()
+        {
+            if (Customer.CustomerNPC.ActiveCustomers != null)
+            {
+                for (int i = 0; i < Customer.CustomerNPC.ActiveCustomers.Count; i++)
+                {
+                    var c = Customer.CustomerNPC.ActiveCustomers[i];
+                    if (c != null && c.HasArrivedAtCounter && !c.IsLeaving && !c.IsDead)
+                    {
+                        return c;
+                    }
+                }
+            }
+            return null;
+        }
+
         public string GetInteractionPrompt()
         {
-            if (_isWaitingForPayment)
+            var waitingCustomer = GetWaitingCustomer();
+            if (_isWaitingForPayment || _currentTotal > 0f || waitingCustomer != null)
             {
-                float change = Mathf.Max(0f, _customerCashReceived - _currentTotal);
-                return $"[E] Thối lại ${change:F2}";
+                if (_isWaitingForPayment && _customerCashReceived > _currentTotal)
+                {
+                    float change = _customerCashReceived - _currentTotal;
+                    return $"[E / Chuột Trái] Chốt đơn & Thối lại ${change:F2}";
+                }
+                return "[E / Chuột Trái] Chốt đơn thanh toán cho khách";
             }
-            return _isDrawerOpen ? "[E] Đóng ngăn kéo tiền" : "[E] Mở ngăn kéo tiền";
+            return _isDrawerOpen ? "[E / Chuột Trái] Đóng ngăn kéo tiền" : "[E / Chuột Trái] Mở ngăn kéo tiền";
         }
 
         public bool CanInteract()
@@ -99,9 +120,11 @@ namespace MidnightMart.Interactions
 
         public void OnInteract(Transform playerTransform)
         {
-            if (_isWaitingForPayment)
+            var waitingCustomer = GetWaitingCustomer();
+
+            // Nếu đang đợi thanh toán, hoặc đã có món hàng được quét (_currentTotal > 0), hoặc có khách đang chờ ở quầy:
+            if (_isWaitingForPayment || _currentTotal > 0f || waitingCustomer != null)
             {
-                // Thối tiền cho khách và hoàn tất giao dịch
                 CompleteTransaction();
             }
             else
@@ -135,18 +158,25 @@ namespace MidnightMart.Interactions
         /// <summary>
         /// Hoàn tất thanh toán, thối tiền và phát sự kiện thành công.
         /// </summary>
-        private void CompleteTransaction()
+        public void CompleteTransaction()
         {
             _isWaitingForPayment = false;
             _currentTotal = 0f;
             _customerCashReceived = 0f;
+
+            // Bật mở ngăn kéo tiền nịnh tai khi chốt đơn thành công
+            _isDrawerOpen = true;
+            if (_drawerTransform != null)
+            {
+                _drawerTransform.localPosition = _drawerClosedPos + _drawerOpenOffset;
+            }
 
             if (_audioSource != null && _drawerOpenSound != null)
             {
                 _audioSource.PlayOneShot(_drawerOpenSound);
             }
 
-            UpdateScreenText("CẢM ƠN QUÝ KHÁCH!");
+            UpdateScreenText("CẢM ƠN QUÝ KHÁCH!\nĐÃ THANH TOÁN");
 
             // Thông báo toàn cục hoàn tất đơn hàng
             GameEvents.TriggerCheckoutCompleted();

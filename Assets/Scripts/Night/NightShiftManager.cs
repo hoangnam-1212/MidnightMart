@@ -220,16 +220,21 @@ namespace MidnightMart.Night
             _npcPrefab.gameObject.SetActive(true);
             _npcPrefab.transform.position = _doorEntrancePoint != null ? _doorEntrancePoint.position : new Vector3(0f, 0f, -7.5f);
 
-            // Dọn dẹp giỏ hàng cũ nếu có
+            // Dọn dẹp giỏ hàng cũ nếu có (cả giỏ hướng dẫn và ca đêm)
             Transform oldCart = _npcPrefab.transform.Find("Night_Customer_Cart");
             if (oldCart != null)
             {
                 Destroy(oldCart.gameObject);
             }
+            Transform oldTutorialCart = _npcPrefab.transform.Find("Tutorial_Customer_Cart");
+            if (oldTutorialCart != null)
+            {
+                Destroy(oldTutorialCart.gameObject);
+            }
 
             GameObject cartObj = new GameObject("Night_Customer_Cart");
             cartObj.transform.SetParent(_npcPrefab.transform);
-            cartObj.transform.localPosition = Vector3.zero;
+            cartObj.transform.localPosition = new Vector3(0f, -50f, 0f); // Tuyệt đối không xuất hiện dưới chân khách hàng
 
             List<MidnightMart.Interactions.ScannableItem> items = new List<MidnightMart.Interactions.ScannableItem>();
 
@@ -295,6 +300,7 @@ namespace MidnightMart.Night
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             obj.name = name;
             obj.transform.SetParent(parent);
+            obj.transform.localPosition = new Vector3(0f, -50f, 0f);
             obj.transform.localScale = scale;
             Renderer r = obj.GetComponent<Renderer>();
             if (r != null)
@@ -312,6 +318,7 @@ namespace MidnightMart.Night
             GameObject cardObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cardObj.name = $"IDCard_{holderName}";
             cardObj.transform.SetParent(parent);
+            cardObj.transform.localPosition = new Vector3(0f, -50f, 0f);
             cardObj.transform.localScale = new Vector3(0.22f, 0.02f, 0.32f);
             Renderer r = cardObj.GetComponent<Renderer>();
             if (r != null)

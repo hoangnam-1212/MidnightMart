@@ -389,13 +389,19 @@ namespace MidnightMart.Customer
             yield return new WaitForSeconds(0.35f);
 
             // CHẶNG 3: "Đến bàn thanh toán với vứt ra"
-            // Đặt 3 - 4 món hàng và Thẻ Căn cước (ID Card) dàn hàng dọc trên mặt bàn quầy
+            // Đặt 3 - 4 món hàng và Thẻ Căn cước (ID Card) dàn hàng dọc trên mặt bàn quầy ở góc trái trống
+            if (_counterItemPlacement == null)
+            {
+                GameObject placementObj = GameObject.Find("Counter_Item_Placement");
+                if (placementObj != null) _counterItemPlacement = placementObj.transform;
+            }
             Vector3 basePlacement = _counterItemPlacement != null ? _counterItemPlacement.position : (targetPos + Vector3.left * 0.7f + Vector3.up * 0.05f);
+            Transform counterParent = _counterItemPlacement != null ? _counterItemPlacement.parent : null;
             
             if (_itemsToBuy != null && _itemsToBuy.Count > 0)
             {
                 int count = _itemsToBuy.Count;
-                float spacing = 0.22f;
+                float spacing = 0.18f;
                 float startZ = -((count - 1) * spacing) * 0.5f;
 
                 for (int i = 0; i < count; i++)
@@ -403,6 +409,7 @@ namespace MidnightMart.Customer
                     ScannableItem item = _itemsToBuy[i];
                     if (item != null)
                     {
+                        if (counterParent != null) item.transform.SetParent(counterParent, true);
                         item.gameObject.SetActive(true);
                         Vector3 itemPos = basePlacement + new Vector3(0f, 0f, startZ + i * spacing);
                         item.transform.position = itemPos;
@@ -420,6 +427,7 @@ namespace MidnightMart.Customer
             }
             else if (_itemToBuy != null)
             {
+                if (counterParent != null) _itemToBuy.transform.SetParent(counterParent, true);
                 _itemToBuy.gameObject.SetActive(true);
                 _itemToBuy.transform.position = basePlacement;
                 _itemToBuy.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
@@ -431,11 +439,12 @@ namespace MidnightMart.Customer
                 }
             }
 
-            // Đặt Thẻ Căn cước (ID Card) ở góc quầy bên cạnh hàng hóa để người chơi tiện soi
+            // Đặt Thẻ Căn cước (ID Card) nằm phẳng trên bàn ở góc trống cạnh hàng hóa (-0.16m về phía nhân viên)
             if (_idCard != null)
             {
+                if (counterParent != null) _idCard.transform.SetParent(counterParent, true);
                 _idCard.gameObject.SetActive(true);
-                _idCard.transform.position = basePlacement + new Vector3(0.15f, 0f, 0.45f);
+                _idCard.transform.position = basePlacement + new Vector3(-0.16f, 0.01f, 0f);
                 _idCard.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
             }
 
@@ -633,8 +642,8 @@ namespace MidnightMart.Customer
 
             yield return new WaitForSeconds(0.6f);
 
-            // Cầm hàng và thẻ ID cất đi khi rời tiệm
-            HideAllShoppingItems();
+            // Thu dọn/xóa sạch hàng hóa và thẻ ID trên bàn quầy khi rời tiệm (không để lại rác trên bàn)
+            CleanupCounterItems();
 
             if (_characterAnimator != null) _characterAnimator.IsWalking = true;
 
@@ -701,15 +710,61 @@ namespace MidnightMart.Customer
 
         private void HideAllShoppingItems()
         {
+            Transform tutorialCart = transform.Find("Tutorial_Customer_Cart");
+            if (tutorialCart != null)
+            {
+                tutorialCart.localPosition = new Vector3(0f, -50f, 0f);
+            }
+            Transform nightCart = transform.Find("Night_Customer_Cart");
+            if (nightCart != null)
+            {
+                nightCart.localPosition = new Vector3(0f, -50f, 0f);
+            }
+
             if (_itemsToBuy != null)
             {
                 for (int i = 0; i < _itemsToBuy.Count; i++)
                 {
-                    if (_itemsToBuy[i] != null) _itemsToBuy[i].gameObject.SetActive(false);
+                    if (_itemsToBuy[i] != null)
+                    {
+                        _itemsToBuy[i].gameObject.SetActive(false);
+                        _itemsToBuy[i].transform.position = new Vector3(0f, -50f, 0f);
+                    }
                 }
             }
-            if (_itemToBuy != null) _itemToBuy.gameObject.SetActive(false);
-            if (_idCard != null) _idCard.gameObject.SetActive(false);
+            if (_itemToBuy != null)
+            {
+                _itemToBuy.gameObject.SetActive(false);
+                _itemToBuy.transform.position = new Vector3(0f, -50f, 0f);
+            }
+            if (_idCard != null)
+            {
+                _idCard.gameObject.SetActive(false);
+                _idCard.transform.position = new Vector3(0f, -50f, 0f);
+            }
+        }
+
+        private void CleanupCounterItems()
+        {
+            if (_itemsToBuy != null)
+            {
+                for (int i = 0; i < _itemsToBuy.Count; i++)
+                {
+                    if (_itemsToBuy[i] != null) Destroy(_itemsToBuy[i].gameObject);
+                }
+                _itemsToBuy.Clear();
+            }
+            if (_itemToBuy != null)
+            {
+                Destroy(_itemToBuy.gameObject);
+                _itemToBuy = null;
+            }
+            if (_idCard != null)
+            {
+                Destroy(_idCard.gameObject);
+                _idCard = null;
+            }
+            HideAllShoppingItems();
         }
 
         /// <summary>
@@ -762,7 +817,7 @@ namespace MidnightMart.Customer
             transform.position = new Vector3(transform.position.x, 0.12f, transform.position.z);
             transform.rotation = Quaternion.Euler(-90f, transform.eulerAngles.y, 0f);
 
-            HideAllShoppingItems();
+            CleanupCounterItems();
             StartCoroutine(DisappearAfterDelay(5.0f));
         }
 

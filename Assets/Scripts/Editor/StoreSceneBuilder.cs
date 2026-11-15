@@ -2266,7 +2266,7 @@ namespace MidnightMart.EditorTools
 
             GameObject cartRoot = new GameObject("Tutorial_Customer_Cart");
             cartRoot.transform.SetParent(customer.transform);
-            cartRoot.transform.localPosition = Vector3.zero;
+            cartRoot.transform.localPosition = new Vector3(0f, -50f, 0f); // Đặt sâu dưới lòng đất, tuyệt đối không xuất hiện dưới chân khách hàng!
 
             // 3 Món hàng khách mua từ Blender models chuẩn tỉ lệ 1:1
             // Món 1: Hộp ngũ cốc (Grocery_Cereal_Box.obj, 17cm x 24cm x 6cm)
@@ -2403,7 +2403,7 @@ namespace MidnightMart.EditorTools
 
             GameObject placementPoint = new GameObject("Counter_Item_Placement");
             placementPoint.transform.SetParent(counter);
-            placementPoint.transform.localPosition = new Vector3(0.15f, 0.55f, 0.05f); // Đặt rõ ràng về phía đối diện khách hàng
+            placementPoint.transform.localPosition = new Vector3(0.10f, 0.53f, 0.60f); // Bố trí ở góc trái bàn quầy hoàn toàn thông thoáng, tách biệt hẳn máy tính tiền
 
             GameObject doorObj = new GameObject("Door_Entrance_Point");
             doorObj.transform.SetParent(parent);
@@ -2429,10 +2429,10 @@ namespace MidnightMart.EditorTools
             Transform[] shelfBrowsingPoints = new Transform[] { shelfPoint1.transform, shelfPoint2.transform, shelfPoint3.transform };
             npc.SetShelfBrowsingPoints(shelfBrowsingPoints);
 
-            // Điểm đứng chờ phía trước bàn quầy thu ngân góc dọc gần cửa (Sát mặt sàn Y = 0, cách cửa 1.9m)
+            // Điểm đứng chờ phía trước bàn quầy thu ngân (X = -1.45m, Z = -1.60m đối diện phần bàn trống góc trái)
             GameObject waitingObj = new GameObject("Customer_Counter_Waiting_Point");
             waitingObj.transform.SetParent(parent);
-            waitingObj.transform.position = new Vector3(-1.45f, 0f, -3.2f);
+            waitingObj.transform.position = new Vector3(-1.45f, 0f, -1.60f);
             waitingPoint = waitingObj.transform;
 
             SerializedObject npcSO = new SerializedObject(npc);

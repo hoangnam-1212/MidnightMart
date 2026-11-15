@@ -32,6 +32,7 @@ namespace MidnightMart.Interactions
         private InteractionHighlighter _highlighter;
         private readonly RaycastHit[] _scanHits = new RaycastHit[1];
         private ScannableItem _currentHoveredItem;
+        private CashRegister _currentHoveredRegister;
 
         private void Awake()
         {
@@ -135,6 +136,11 @@ namespace MidnightMart.Interactions
                 _currentHoveredItem.SetHighlight(false);
                 _currentHoveredItem = null;
             }
+            if (_currentHoveredRegister != null)
+            {
+                _currentHoveredRegister.SetHighlight(false);
+                _currentHoveredRegister = null;
+            }
         }
 
         private void Update()
@@ -154,6 +160,11 @@ namespace MidnightMart.Interactions
                     _currentHoveredItem.SetHighlight(false);
                     _currentHoveredItem = null;
                 }
+                if (_currentHoveredRegister != null)
+                {
+                    _currentHoveredRegister.SetHighlight(false);
+                    _currentHoveredRegister = null;
+                }
                 return;
             }
 
@@ -161,7 +172,7 @@ namespace MidnightMart.Interactions
 
             UpdateLaserBeamAndCheckTarget();
 
-            // Nhấn chuột trái hoặc phím E để bắn tia quét mã
+            // Nhấn chuột trái hoặc phím E để bắn tia quét mã / tương tác máy tính tiền
             bool scanTriggered = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
                                 (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
 
@@ -172,7 +183,7 @@ namespace MidnightMart.Interactions
         }
 
         /// <summary>
-        /// Vẽ tia laser đỏ từ máy quét hướng thẳng theo tâm nhìn camera và kiểm tra món hàng trước mặt.
+        /// Vẽ tia laser đỏ từ máy quét hướng thẳng theo tâm nhìn camera và kiểm tra món hàng hoặc máy tính tiền trước mặt.
         /// </summary>
         private void UpdateLaserBeamAndCheckTarget()
         {
@@ -185,11 +196,16 @@ namespace MidnightMart.Interactions
 
             Ray ray = new Ray(rayOrigin, rayDir);
             ScannableItem hitItem = null;
+            CashRegister hitRegister = null;
 
             if (Physics.RaycastNonAlloc(ray, _scanHits, _scanRange, _scanLayers) > 0)
             {
                 targetPos = _scanHits[0].point;
                 hitItem = _scanHits[0].collider.GetComponentInParent<ScannableItem>();
+                if (hitItem == null)
+                {
+                    hitRegister = _scanHits[0].collider.GetComponentInParent<CashRegister>();
+                }
             }
 
             if (_laserLine != null)
@@ -198,6 +214,7 @@ namespace MidnightMart.Interactions
                 _laserLine.SetPosition(1, targetPos);
             }
 
+            // Highlight & Hover món hàng
             if (hitItem != _currentHoveredItem)
             {
                 if (_currentHoveredItem != null) _currentHoveredItem.SetHighlight(false);
@@ -205,15 +222,40 @@ namespace MidnightMart.Interactions
                 if (_currentHoveredItem != null && !_currentHoveredItem.IsScanned)
                 {
                     _currentHoveredItem.SetHighlight(true);
+                    GameEvents.TriggerInteractionHover($"[Chuột Trái / E] Quét mã {_currentHoveredItem.ProductName}");
                 }
+            }
+
+            // Highlight & Hover máy tính tiền
+            if (hitRegister != _currentHoveredRegister)
+            {
+                if (_currentHoveredRegister != null) _currentHoveredRegister.SetHighlight(false);
+                _currentHoveredRegister = hitRegister;
+                if (_currentHoveredRegister != null)
+                {
+                    _currentHoveredRegister.SetHighlight(true);
+                    GameEvents.TriggerInteractionHover(_currentHoveredRegister.GetInteractionPrompt());
+                }
+            }
+
+            if (_currentHoveredItem == null && _currentHoveredRegister == null)
+            {
+                GameEvents.TriggerInteractionHover(string.Empty);
             }
         }
 
         /// <summary>
-        /// Thực hiện quét món hàng đang ngắm tới.
+        /// Thực hiện quét món hàng hoặc chốt đơn tại máy tính tiền.
         /// </summary>
         public void PerformScan()
         {
+            // Nếu đang ngắm vào máy tính tiền: Kích hoạt chốt đơn thanh toán ngay
+            if (_currentHoveredRegister != null)
+            {
+                _currentHoveredRegister.OnInteract(transform.root);
+                return;
+            }
+
             if (_currentHoveredItem != null && !_currentHoveredItem.IsScanned)
             {
                 _currentHoveredItem.MarkAsScanned();
