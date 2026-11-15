@@ -267,6 +267,11 @@ namespace MidnightMart.Combat
 
                 Ray ray = new Ray(shootOrigin, spreadDir);
                 int hitCount = Physics.RaycastNonAlloc(ray, multiHits, _range, effectiveMask, QueryTriggerInteraction.Ignore);
+                if (hitCount > 1)
+                {
+                    System.Array.Sort(multiHits, 0, hitCount, System.Collections.Generic.Comparer<RaycastHit>.Create((a, b) => a.distance.CompareTo(b.distance)));
+                }
+
                 for (int h = 0; h < hitCount; h++)
                 {
                     RaycastHit hit = multiHits[h];
@@ -285,14 +290,16 @@ namespace MidnightMart.Combat
                         float relativeY = hit.point.y - customer.transform.position.y;
                         bool isHeadshot = relativeY >= 1.35f || hit.collider.name.ToLower().Contains("head");
                         customer.TakeDamage(_damagePerPellet, hit.point, spreadDir, isHeadshot);
+                        break;
                     }
 
-                    // Tác động sát thương lên Boss Quái vật (The Flesh Stalker)
+                    // Tác động sát thương lên Boss Quái vật (The Flesh Stalker / Crawler / Void Phantom)
                     BossMonsterAI boss = hit.collider.GetComponentInParent<BossMonsterAI>();
                     if (boss == null) boss = hit.collider.GetComponentInChildren<BossMonsterAI>();
                     if (boss != null)
                     {
                         boss.TakeDamage(_damagePerPellet, hit.point, spreadDir);
+                        break;
                     }
 
                     // Tác động lực vật lý nếu trúng Rigidbody
@@ -302,7 +309,11 @@ namespace MidnightMart.Combat
                         hitRb.AddForceAtPosition(spreadDir * 12f, hit.point, ForceMode.Impulse);
                     }
 
-                    break; // Viên đạn dừng lại ở vật thể đầu tiên trúng
+                    // Viên đạn dừng lại khi trúng vật cản cứng (Tường, quầy, kệ hàng)
+                    if (!hit.collider.isTrigger)
+                    {
+                        break;
+                    }
                 }
             }
         }

@@ -155,8 +155,13 @@ namespace MidnightMart.Player
             float actualMaxDist = Mathf.Max(_maxInteractionDistance, 4.5f);
             LayerMask mask = _interactionLayers.value != 0 ? _interactionLayers : (LayerMask)(~0);
 
-            // Bước 1: Tia Raycast chuẩn từ tâm camera
+            // Bước 1: Tia Raycast chuẩn từ tâm camera (có sắp xếp theo khoảng cách & chặn xuyên tường)
             int hitCount = Physics.RaycastNonAlloc(ray, _hitBuffer, actualMaxDist, mask, QueryTriggerInteraction.Collide);
+            if (hitCount > 1)
+            {
+                System.Array.Sort(_hitBuffer, 0, hitCount, System.Collections.Generic.Comparer<RaycastHit>.Create((a, b) => a.distance.CompareTo(b.distance)));
+            }
+
             for (int i = 0; i < hitCount; i++)
             {
                 RaycastHit hit = _hitBuffer[i];
@@ -180,20 +185,50 @@ namespace MidnightMart.Player
 
                 if (interactable != null && interactable.CanInteract())
                 {
-                    float dist = hit.distance > 0.001f ? hit.distance : Vector3.Distance(rayOrigin, hit.collider.bounds.center);
-                    if (dist < closestDistance)
+                    // Kiểm tra đường ngắm thẳng (Line of Sight): Đảm bảo không có tường/cửa chắn giữa camera và điểm tương tác
+                    Vector3 targetPoint = hit.point != Vector3.zero ? hit.point : hit.collider.bounds.center;
+                    Vector3 toTarget = targetPoint - rayOrigin;
+                    float targetDist = toTarget.magnitude;
+
+                    if (targetDist > 0.15f)
                     {
-                        closestDistance = dist;
-                        closestInteractable = interactable;
+                        if (Physics.Raycast(rayOrigin, toTarget.normalized, out RaycastHit occluderHit, targetDist - 0.08f, mask, QueryTriggerInteraction.Ignore))
+                        {
+                            if (occluderHit.collider != null &&
+                                occluderHit.collider != hit.collider &&
+                                occluderHit.collider.transform.root != transform.root &&
+                                !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
+                                !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
+                            {
+                                // Bị tường hoặc vách ngăn che khuất tầm nhìn -> Ngừng quét, không cho nhặt xuyên tường!
+                                break;
+                            }
+                        }
                     }
+
+                    closestInteractable = interactable;
+                    closestDistance = hit.distance;
+                    break; // Tìm thấy mục tiêu hợp lệ gần nhất
+                }
+
+                // Nếu gặp bức tường, vách ngăn, cửa đóng (Collider đặc không phải trigger và không có IInteractable):
+                if (!hit.collider.isTrigger)
+                {
+                    // Tia nhìn bị chặn bởi tường cứng! Ngăn tương tác với các vật thể phía sau tường
+                    break;
                 }
             }
 
-            // Bước 2: SphereCast quét diện rộng nếu Raycast chưa bắt trúng
+            // Bước 2: SphereCast quét diện rộng nếu Raycast chưa bắt trúng (vẫn kiểm tra chặn xuyên tường)
             if (closestInteractable == null)
             {
-                float sphereRadius = Mathf.Max(_sphereCastRadius, 0.35f);
+                float sphereRadius = Mathf.Max(_sphereCastRadius, 0.30f);
                 int sphereHitCount = Physics.SphereCastNonAlloc(ray, sphereRadius, _hitBuffer, actualMaxDist, mask, QueryTriggerInteraction.Collide);
+                if (sphereHitCount > 1)
+                {
+                    System.Array.Sort(_hitBuffer, 0, sphereHitCount, System.Collections.Generic.Comparer<RaycastHit>.Create((a, b) => a.distance.CompareTo(b.distance)));
+                }
+
                 for (int i = 0; i < sphereHitCount; i++)
                 {
                     RaycastHit hit = _hitBuffer[i];
@@ -216,12 +251,33 @@ namespace MidnightMart.Player
 
                     if (interactable != null && interactable.CanInteract())
                     {
-                        float dist = hit.distance > 0.001f ? hit.distance : Vector3.Distance(rayOrigin, hit.collider.bounds.center);
-                        if (dist < closestDistance)
+                        Vector3 targetPoint = hit.point != Vector3.zero ? hit.point : hit.collider.bounds.center;
+                        Vector3 toTarget = targetPoint - rayOrigin;
+                        float targetDist = toTarget.magnitude;
+
+                        if (targetDist > 0.15f)
                         {
-                            closestDistance = dist;
-                            closestInteractable = interactable;
+                            if (Physics.Raycast(rayOrigin, toTarget.normalized, out RaycastHit occluderHit, targetDist - 0.08f, mask, QueryTriggerInteraction.Ignore))
+                            {
+                                if (occluderHit.collider != null &&
+                                    occluderHit.collider != hit.collider &&
+                                    occluderHit.collider.transform.root != transform.root &&
+                                    !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
+                                    !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
+                                {
+                                    break;
+                                }
+                            }
                         }
+
+                        closestInteractable = interactable;
+                        closestDistance = hit.distance;
+                        break;
+                    }
+
+                    if (!hit.collider.isTrigger)
+                    {
+                        break;
                     }
                 }
             }

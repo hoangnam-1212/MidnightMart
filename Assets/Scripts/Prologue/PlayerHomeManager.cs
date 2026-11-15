@@ -71,7 +71,11 @@ namespace MidnightMart.Prologue
 
         private void Start()
         {
-            // Bắt đầu màn mở đầu tại nhà
+            // Bắt đầu màn mở đầu tại nhà chỉ khi MainMenu không còn mở
+            if (MidnightMart.UI.MainMenuManager.Instance != null && MidnightMart.UI.MainMenuManager.Instance.IsMenuOpen)
+            {
+                return;
+            }
             StartHomePrologue();
         }
 

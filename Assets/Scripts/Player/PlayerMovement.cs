@@ -40,6 +40,7 @@ namespace MidnightMart.Player
         private float _targetHeight;
         private float _defaultCameraY;
         private float _bobTimer;
+        private bool _isDialogueOpen;
 
         private void Awake()
         {
@@ -50,6 +51,25 @@ namespace MidnightMart.Player
             if (_cameraContainer != null)
             {
                 _defaultCameraY = _cameraContainer.localPosition.y;
+            }
+        }
+
+        private void OnEnable()
+        {
+            MidnightMart.Core.GameEvents.OnDialogueStateChanged += HandleDialogueChanged;
+        }
+
+        private void OnDisable()
+        {
+            MidnightMart.Core.GameEvents.OnDialogueStateChanged -= HandleDialogueChanged;
+        }
+
+        private void HandleDialogueChanged(bool isOpen)
+        {
+            _isDialogueOpen = isOpen;
+            if (_isDialogueOpen)
+            {
+                _moveInput = Vector2.zero;
             }
         }
 
@@ -97,6 +117,8 @@ namespace MidnightMart.Player
         /// </summary>
         public void Jump()
         {
+            if (_isDialogueOpen || Cursor.lockState != CursorLockMode.Locked) return;
+
             if (_characterController != null && _characterController.isGrounded && !_isCrouching)
             {
                 _velocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);

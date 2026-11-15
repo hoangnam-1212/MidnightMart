@@ -34,6 +34,7 @@ namespace MidnightMart.Night
         [SerializeField] private CustomerNPC _npcPrefab;
         [SerializeField] private MidnightMart.Combat.BossMonsterAI _bossPrefab;
         [SerializeField] private GameObject _femaleCustomerModel;
+        [SerializeField] private GameObject _maleCustomerModel;
         [SerializeField] private GameObject _doppelgangerModel;
         [SerializeField] private Transform _doorEntrancePoint;
         [SerializeField] private Transform _counterWaitingPoint;
@@ -44,7 +45,7 @@ namespace MidnightMart.Night
         private int _currentDay = 1;
         private bool _isNightActive;
         private bool _isReturnRideAvailable = false;
-        private int _currentHour = 1; // 1 = 01:00 AM
+        private int _currentHour = 0; // 0 = 00:00 AM (Bắt đầu từ nửa đêm)
         private int _currentMinute = 0;
         private int _civiliansShotCount;
         private int _monstersKilledCount;
@@ -107,25 +108,34 @@ namespace MidnightMart.Night
         }
 
         /// <summary>
-        /// Kích hoạt bắt đầu Ca trực Đêm lúc 01:00 AM (sau khi hoàn thành Tutorial).
+        /// Kích hoạt bắt đầu Ca trực Đêm lúc 00:00 AM (sau khi hoàn thành Tutorial).
         /// </summary>
         public void StartNightShift()
         {
             if (_isNightActive) return;
             _isNightActive = true;
-            _currentHour = 1;
+            _currentDay = SaveManager.CurrentNight;
+            _currentMoney = SaveManager.PlayerMoney;
+            _currentHour = 0; // 00:00 AM
             _currentMinute = 0;
+            _blackoutTriggered = false;
+            _bossTriggered = false;
 
-            GameEvents.TriggerTimeUpdated("01:00 AM");
+            if (_bossPrefab != null)
+            {
+                _bossPrefab.SetupMonsterForNight(_currentDay);
+            }
+
+            GameEvents.TriggerTimeUpdated("00:00 AM");
             GameEvents.TriggerMoneyChanged(_currentMoney, 0f);
-            GameEvents.TriggerObjectiveUpdated("CA TRỰC ĐÊM: Phục vụ khách & Cảnh giác kẻ giả dạng (01:00 - 06:00)");
+            GameEvents.TriggerObjectiveUpdated($"CA TRỰC ĐÊM {_currentDay}: Phục vụ 5 khách hàng & Cảnh giác quái vật giả dạng (00:00 - 06:00)");
 
             StartCoroutine(NightClockRoutine());
             StartCoroutine(NightCustomerSpawningRoutine());
         }
 
         /// <summary>
-        /// Chế độ chơi nhanh (Skip Tutorial): Mở khóa Shotgun ngay lập tức và vào thẳng ca trực 01:00 AM.
+        /// Chế độ chơi nhanh (Skip Tutorial): Mở khóa Shotgun ngay lập tức và vào thẳng ca trực 00:00 AM.
         /// </summary>
         public void QuickStartNightShiftImmediate()
         {
@@ -134,7 +144,7 @@ namespace MidnightMart.Night
         }
 
         /// <summary>
-        /// Đồng hồ chạy từ 01:00 AM đến 06:00 AM.
+        /// Đồng hồ chạy từ 00:00 AM đến 06:00 AM.
         /// </summary>
         private IEnumerator NightClockRoutine()
         {
@@ -157,17 +167,11 @@ namespace MidnightMart.Night
                 string timeStr = $"{_currentHour:00}:{_currentMinute:00} AM";
                 GameEvents.TriggerTimeUpdated(timeStr);
 
-                // Sự kiện Đỉnh điểm 03:30 AM: Cúp điện & Quái vật vây tiệm!
-                if (_currentHour == 3 && _currentMinute >= 30 && !_blackoutTriggered)
+                // Sự kiện Đỉnh điểm đúng 03:00 AM: Mất điện toàn tiệm & Quái vật đêm tấn công!
+                if (_currentHour == 3 && _currentMinute >= 0 && !_blackoutTriggered)
                 {
                     _blackoutTriggered = true;
                     TriggerBlackoutEvent();
-                }
-
-                // Sự kiện Boss Trùm xuất hiện lúc gần hết ca trực (04:30 AM) hoặc khi để quái sổng
-                if (_currentHour == 4 && _currentMinute >= 30 && !_bossTriggered)
-                {
-                    _bossTriggered = true;
                     TriggerBossEncounter();
                 }
 
@@ -179,53 +183,44 @@ namespace MidnightMart.Night
         }
 
         /// <summary>
-        /// Sinh các đợt khách hàng ghé tiệm trong đêm: Người thật lẫn Quái vật giả dạng.
-        /// Áp dụng cơ chế Chờ đợi Tuyệt đối (Wait Until Finished):
-        /// - Khách kiên nhẫn đứng đợi người chơi tại quầy, không bao giờ bị timer ép xóa.
-        /// - Đợt khách tiếp theo chỉ xuất hiện sau khi khách cũ đã hoàn tất đi ra khỏi cửa hoặc bị bắn hạ.
+        /// Sinh 5 đợt khách hàng ghé tiệm từ 00:00 đến 03:00 AM:
+        /// - 3 Khách hàng người thật bình thường.
+        /// - 2 Quái vật giả dạng (Doppelgänger) trà trộn mua đồ mà người chơi cần kiểm tra ID/CSDL để phát hiện.
+        /// - Áp dụng cơ chế Chờ đợi Tuyệt đối: Khách đứng đợi người chơi, chỉ rời đi sau khi thanh toán hoặc bị bắn hạ.
         /// </summary>
         private IEnumerator NightCustomerSpawningRoutine()
         {
-            // Khách hàng 1 (Lúc 01:20 AM): Sarah Jenkins (Người thật - 3 món hàng)
-            yield return new WaitForSeconds(4.0f);
-            if (!_isNightActive) yield break;
-            SpawnNightCustomer("Chị gái đi làm ca đêm", isDoppelganger: false);
-
-            // Chờ người chơi phục vụ xong khách 1 (hoặc bắn hạ) - Tuyệt đối không xóa bằng timer
-            while (_isNightActive)
+            for (int customerIdx = 0; customerIdx < 5; customerIdx++)
             {
-                if (_npcPrefab == null || !_npcPrefab.gameObject.activeInHierarchy || _npcPrefab.IsDead || _npcPrefab.IsLeaving)
-                {
-                    // Chờ thêm 3.5s sau khi khách 1 rời tiệm để tạo khoảng lặng hồi hộp
-                    yield return new WaitForSeconds(3.5f);
-                    break;
-                }
-                yield return new WaitForSeconds(0.5f);
-            }
+                if (!_isNightActive || _currentHour >= 3) yield break;
 
-            // Khách hàng 2: Thomas Vance (Quái vật giả dạng Đêm 1 - 4 món hàng, không bóng đổ)
-            if (!_isNightActive) yield break;
-            SpawnNightCustomer("Kẻ lạ mặt trùm kín đầu", isDoppelganger: true);
+                // Khoảng chờ giữa các lượt khách
+                yield return new WaitForSeconds(3.5f);
+                if (!_isNightActive || _currentHour >= 3) yield break;
 
-            // Chờ xử lý xong khách 2
-            while (_isNightActive)
-            {
-                if (_npcPrefab == null || !_npcPrefab.gameObject.activeInHierarchy || _npcPrefab.IsDead || _npcPrefab.IsLeaving)
+                SpawnSpecificNightCustomer(customerIdx);
+
+                // Chờ người chơi phục vụ xong (hoặc bắn hạ)
+                while (_isNightActive && _currentHour < 3)
                 {
-                    break;
+                    if (_npcPrefab == null || !_npcPrefab.gameObject.activeInHierarchy || _npcPrefab.IsDead || _npcPrefab.IsLeaving)
+                    {
+                        yield return new WaitForSeconds(3.0f);
+                        break;
+                    }
+                    yield return new WaitForSeconds(0.5f);
                 }
-                yield return new WaitForSeconds(0.5f);
             }
         }
 
-        private void SpawnNightCustomer(string name, bool isDoppelganger)
+        private void SpawnSpecificNightCustomer(int index)
         {
             if (_npcPrefab == null) return;
 
             _npcPrefab.gameObject.SetActive(true);
             _npcPrefab.transform.position = _doorEntrancePoint != null ? _doorEntrancePoint.position : new Vector3(0f, 0f, -7.5f);
 
-            // Dọn dẹp giỏ hàng cũ của khách trước nếu có
+            // Dọn dẹp giỏ hàng cũ nếu có
             Transform oldCart = _npcPrefab.transform.Find("Night_Customer_Cart");
             if (oldCart != null)
             {
@@ -238,38 +233,58 @@ namespace MidnightMart.Night
 
             List<MidnightMart.Interactions.ScannableItem> items = new List<MidnightMart.Interactions.ScannableItem>();
 
-            if (!isDoppelganger)
+            switch (index)
             {
-                if (_femaleCustomerModel != null)
-                {
-                    _npcPrefab.ApplyVisualMesh(_femaleCustomerModel);
-                }
+                case 0:
+                    // Khách 1 (00:15 AM): Sarah Jenkins (Y tá bệnh viện - Người thật, 3 món hàng)
+                    if (_femaleCustomerModel != null) _npcPrefab.ApplyVisualMesh(_femaleCustomerModel);
+                    items.Add(CreateCartItem(cartObj.transform, "Lon Nước Tăng Lực", 3.50f, new Color(0.1f, 0.7f, 0.2f), new Vector3(0.12f, 0.24f, 0.12f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Gói Bim Bim Bắp", 2.50f, new Color(0.95f, 0.8f, 0.1f), new Vector3(0.2f, 0.25f, 0.08f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Kẹo Cao Su Bạc Hà", 1.50f, new Color(0.2f, 0.5f, 0.9f), new Vector3(0.1f, 0.05f, 0.15f)));
+                    CustomerIDCard id1 = CreateIDCard(cartObj.transform, "Sarah Jenkins", 1994, "BK-8842-US", "Số 42 Đại lộ Pine, Blackwood", false);
+                    _npcPrefab.SetupCustomer("Sarah (Y tá ca đêm)", false, items, id1, 10.0f);
+                    break;
 
-                // Khách 1: Sarah Jenkins (Người thật - 3 món hàng đặc trưng)
-                items.Add(CreateCartItem(cartObj.transform, "Lon Nước Tăng Lực", 3.50f, new Color(0.1f, 0.7f, 0.2f), new Vector3(0.12f, 0.24f, 0.12f)));
-                items.Add(CreateCartItem(cartObj.transform, "Gói Bim Bim Bắp", 2.50f, new Color(0.95f, 0.8f, 0.1f), new Vector3(0.2f, 0.25f, 0.08f)));
-                items.Add(CreateCartItem(cartObj.transform, "Kẹo Cao Su Bạc Hà", 1.50f, new Color(0.2f, 0.5f, 0.9f), new Vector3(0.1f, 0.05f, 0.15f)));
+                case 1:
+                    // Khách 2 (00:50 AM): Mike Davis (Tài xế giao hàng đêm - Người thật, 3 món hàng)
+                    if (_maleCustomerModel != null) _npcPrefab.ApplyVisualMesh(_maleCustomerModel);
+                    items.Add(CreateCartItem(cartObj.transform, "Lon Cà Phê Đen", 2.80f, new Color(0.25f, 0.15f, 0.1f), new Vector3(0.12f, 0.22f, 0.12f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Bao Thuốc Lá", 7.50f, new Color(0.85f, 0.2f, 0.2f), new Vector3(0.14f, 0.20f, 0.08f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Bánh Mì Kẹp", 4.00f, new Color(0.85f, 0.65f, 0.35f), new Vector3(0.22f, 0.12f, 0.15f)));
+                    CustomerIDCard id2 = CreateIDCard(cartObj.transform, "Mike Davis", 1988, "TRK-5519-BW", "Bến xe ngoại ô Blackwood", false);
+                    _npcPrefab.SetupCustomer("Mike (Tài xế giao hàng)", false, items, id2, 20.0f);
+                    break;
 
-                // Thẻ ID người thật (Năm sinh 1994 - 30 tuổi hợp lệ)
-                CustomerIDCard idCard = CreateIDCard(cartObj.transform, "Sarah Jenkins", 1994, "BK-8842-US", "Số 42 Đại lộ Pine, Blackwood", false);
-                _npcPrefab.SetupCustomer("Sarah (Khách ca đêm)", false, items, idCard, 10.0f);
-            }
-            else
-            {
-                if (_doppelgangerModel != null)
-                {
-                    _npcPrefab.ApplyVisualMesh(_doppelgangerModel);
-                }
+                case 2:
+                    // Khách 3 (01:30 AM): Thomas Vance (Quái vật giả dạng Đêm - Năm sinh 1820! Hơn 200 tuổi!)
+                    if (_doppelgangerModel != null) _npcPrefab.ApplyVisualMesh(_doppelgangerModel);
+                    items.Add(CreateCartItem(cartObj.transform, "Hộp Thịt Đóng Hộp", 5.50f, new Color(0.4f, 0.25f, 0.2f), new Vector3(0.18f, 0.16f, 0.18f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Chai Nước Tẩy Trắng", 6.00f, new Color(0.2f, 0.4f, 0.8f), new Vector3(0.14f, 0.28f, 0.14f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Bao Diêm Gỗ", 1.50f, new Color(0.7f, 0.1f, 0.1f), new Vector3(0.1f, 0.04f, 0.14f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Chai Nước Suối", 2.00f, new Color(0.3f, 0.6f, 0.95f), new Vector3(0.12f, 0.26f, 0.12f)));
+                    CustomerIDCard id3 = CreateIDCard(cartObj.transform, "Thomas Vance", 1820, "ANOMALY-001", "Khu rừng cấm Blackwood County", true);
+                    _npcPrefab.SetupCustomer("Kẻ lạ mặt trùm đầu", true, items, id3, 30.0f);
+                    break;
 
-                // Khách 2: Thomas Vance (Quái vật giả dạng Đêm 1 - 4 món hàng)
-                items.Add(CreateCartItem(cartObj.transform, "Bao Thuốc Lá Đỏ", 8.50f, new Color(0.85f, 0.15f, 0.15f), new Vector3(0.14f, 0.22f, 0.08f)));
-                items.Add(CreateCartItem(cartObj.transform, "Đồ Hộp Thịt Nguội", 5.50f, new Color(0.4f, 0.25f, 0.2f), new Vector3(0.18f, 0.16f, 0.18f)));
-                items.Add(CreateCartItem(cartObj.transform, "Chai Nước Suối", 2.00f, new Color(0.3f, 0.6f, 0.95f), new Vector3(0.12f, 0.26f, 0.12f)));
-                items.Add(CreateCartItem(cartObj.transform, "Bánh Mì Kẹp", 4.00f, new Color(0.85f, 0.65f, 0.35f), new Vector3(0.22f, 0.12f, 0.15f)));
+                case 3:
+                    // Khách 4 (02:10 AM): Emma Watson (Nữ sinh viên - Người thật, 3 món hàng)
+                    if (_femaleCustomerModel != null) _npcPrefab.ApplyVisualMesh(_femaleCustomerModel);
+                    items.Add(CreateCartItem(cartObj.transform, "Tô Mì Ăn Liền", 2.20f, new Color(0.9f, 0.5f, 0.1f), new Vector3(0.20f, 0.16f, 0.20f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Chai Soda Chanh", 2.00f, new Color(0.2f, 0.8f, 0.3f), new Vector3(0.12f, 0.26f, 0.12f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Thanh Sô-cô-la", 1.80f, new Color(0.35f, 0.18f, 0.10f), new Vector3(0.10f, 0.03f, 0.22f)));
+                    CustomerIDCard id4 = CreateIDCard(cartObj.transform, "Emma Watson", 2002, "STU-9921-BW", "Ký túc xá Đại học Blackwood", false);
+                    _npcPrefab.SetupCustomer("Emma (Sinh viên)", false, items, id4, 10.0f);
+                    break;
 
-                // Thẻ ID Quái vật Đêm 1: Năm sinh phi lý 1820 (Đã hơn 200 tuổi!)
-                CustomerIDCard idCard = CreateIDCard(cartObj.transform, "Thomas Vance", 1820, "ANOMALY-001", "Khu rừng cấm Blackwood County", true);
-                _npcPrefab.SetupCustomer("Kẻ lạ mặt trùm đầu", true, items, idCard, 25.0f);
+                default:
+                    // Khách 5 (02:45 AM): Kẻ kỳ quái trước giờ bão (Quái vật giả dạng tinh vi - Dao bếp, Thịt sống, Mã ID dị thường)
+                    if (_doppelgangerModel != null) _npcPrefab.ApplyVisualMesh(_doppelgangerModel);
+                    items.Add(CreateCartItem(cartObj.transform, "Dao Bếp Cán Đen", 12.00f, new Color(0.15f, 0.15f, 0.18f), new Vector3(0.08f, 0.05f, 0.35f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Tảng Thịt Tươi", 9.50f, new Color(0.85f, 0.15f, 0.15f), new Vector3(0.24f, 0.10f, 0.20f)));
+                    items.Add(CreateCartItem(cartObj.transform, "Đèn Pin Cầm Tay", 15.00f, new Color(0.2f, 0.2f, 0.25f), new Vector3(0.10f, 0.10f, 0.28f)));
+                    CustomerIDCard id5 = CreateIDCard(cartObj.transform, "Đối Tượng Vô Danh", 0, "CORRUPTED-DNA", "Ranh giới hư không Blackwood", true);
+                    _npcPrefab.SetupCustomer("Kẻ kỳ quái mắt đỏ", true, items, id5, 50.0f);
+                    break;
             }
 
             _npcPrefab.StartCustomerArrival();
@@ -444,6 +459,9 @@ namespace MidnightMart.Night
             GameEvents.TriggerTimeUpdated("06:00 AM");
             GameEvents.TriggerObjectiveUpdated("06:00 AM: HOÀN THÀNH CA TRỰC ĐÊM!");
             GameEvents.TriggerSubtitle("Phát thanh", "Bình minh đã ló rạng. Ca trực đêm kết thúc an toàn. Hãy kiểm tra bảng lương.", 6.0f);
+
+            // Tự động lưu tiến độ sang Đêm tiếp theo với số tiền tích lũy
+            SaveManager.SaveProgress(_currentDay + 1, _currentMoney);
 
             // Bắn sự kiện hiển thị bảng tổng kết trên HUD
             GameEvents.TriggerShiftEnded(_customersServedCount, _monstersKilledCount, _civiliansShotCount, _currentMoney);

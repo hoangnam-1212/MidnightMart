@@ -127,11 +127,11 @@ namespace MidnightMart.UI
                 }
             }
 
-            // Nhấn Space để đọc nhanh câu thoại tiếp theo hoặc đóng phụ đề
+            // Nhấn F hoặc Enter để đọc nhanh câu thoại tiếp theo hoặc đóng phụ đề (Tách rời khỏi phím Space nhảy)
             if (_isDialogueActive)
             {
-                bool spacePressed = Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
-                if (spacePressed)
+                bool skipPressed = Keyboard.current != null && (Keyboard.current.fKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame);
+                if (skipPressed)
                 {
                     AdvanceOrCloseDialogue();
                 }
@@ -451,7 +451,7 @@ namespace MidnightMart.UI
             if (_subtitlePromptTMP != null)
             {
                 _subtitlePromptTMP.fontSize = 20f;
-                _subtitlePromptTMP.text = LocalizationManager.T("<color=#FFE600>[Space] Tiếp tục >></color>", "<color=#FFE600>[Space] Continue >></color>");
+                _subtitlePromptTMP.text = LocalizationManager.T("<color=#FFE600>[F] Tiếp tục >></color>", "<color=#FFE600>[F] Continue >></color>");
             }
 
             if (_autoDismissDialogueCoroutine != null)

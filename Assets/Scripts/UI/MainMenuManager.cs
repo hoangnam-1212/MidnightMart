@@ -72,6 +72,22 @@ namespace MidnightMart.UI
                 _canvasGroup.blocksRaycasts = true;
             }
 
+            if (_btnPlay != null)
+            {
+                TMP_Text playText = _btnPlay.GetComponentInChildren<TMP_Text>();
+                if (playText != null)
+                {
+                    if (SaveManager.HasSaveData && SaveManager.CurrentNight > 1)
+                    {
+                        playText.text = $"▶ TIẾP TỤC (ĐÊM {SaveManager.CurrentNight}) • ${SaveManager.PlayerMoney:0}";
+                    }
+                    else
+                    {
+                        playText.text = "▶ BẮT ĐẦU CHƠI (PLAY)";
+                    }
+                }
+            }
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             GameEvents.TriggerDialogueStateChanged(true);
@@ -97,14 +113,28 @@ namespace MidnightMart.UI
         {
             CloseMainMenu();
 
+            if (SaveManager.HasSaveData && SaveManager.CurrentNight > 1)
+            {
+                // Người chơi tiếp tục từ Đêm 2, Đêm 3... -> Kích hoạt thẳng ca trực siêu thị
+                Night.NightShiftManager.Instance?.StartNightShift();
+                return;
+            }
+
             if (_playerTransform != null && _homeSpawnPoint != null)
             {
                 TeleportPlayer(_homeSpawnPoint.position, _homeSpawnPoint.rotation);
             }
 
-            GameEvents.TriggerTimeUpdated("11:30 PM");
-            GameEvents.TriggerObjectiveUpdated("MỤC TIÊU: Đi lại bàn làm việc kiểm tra Giấy báo nợ & Tin nhắn tuyển dụng");
-            GameEvents.TriggerSubtitle("Độc thoại", "Đã 11:30 đêm rồi... Sắp đến giờ nhận ca trực tại siêu thị Midnight Mart.", 4.0f);
+            if (_playerHomeManager != null)
+            {
+                _playerHomeManager.StartHomePrologue();
+            }
+            else
+            {
+                GameEvents.TriggerTimeUpdated("11:30 PM");
+                GameEvents.TriggerObjectiveUpdated("MỤC TIÊU: Đi lại bàn làm việc kiểm tra Giấy báo nợ & Tin nhắn tuyển dụng");
+                GameEvents.TriggerSubtitle("Độc thoại", "Đã 11:30 đêm rồi... Sắp đến giờ nhận ca trực tại siêu thị Midnight Mart.", 4.0f);
+            }
         }
 
         public void OnQuitClicked()

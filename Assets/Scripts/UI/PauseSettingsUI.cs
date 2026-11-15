@@ -44,6 +44,8 @@ namespace MidnightMart.UI
         [SerializeField] private TMP_Text _resumeBtnTMP;
         [SerializeField] private Button _restartBtn;
         [SerializeField] private TMP_Text _restartBtnTMP;
+        [SerializeField] private Button _resetAllProgressBtn;
+        [SerializeField] private TMP_Text _resetAllProgressBtnTMP;
         [SerializeField] private Button _quitBtn;
         [SerializeField] private TMP_Text _quitBtnTMP;
 
@@ -89,6 +91,7 @@ namespace MidnightMart.UI
         {
             if (_resumeBtn != null) _resumeBtn.onClick.AddListener(ResumeGame);
             if (_restartBtn != null) _restartBtn.onClick.AddListener(RestartShift);
+            if (_resetAllProgressBtn != null) _resetAllProgressBtn.onClick.AddListener(ResetAllGameProgress);
             if (_quitBtn != null) _quitBtn.onClick.AddListener(QuitGame);
 
             if (_btnVietnamese != null) _btnVietnamese.onClick.AddListener(() => SetGameLanguage(GameLanguage.Vietnamese));
@@ -198,6 +201,14 @@ namespace MidnightMart.UI
             UnityEngine.SceneManagement.SceneManager.LoadScene(currentSceneName);
         }
 
+        public void ResetAllGameProgress()
+        {
+            Time.timeScale = 1f;
+            SaveManager.ResetAllProgress();
+            string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(currentSceneName);
+        }
+
         public void QuitGame()
         {
             Time.timeScale = 1f;
@@ -253,6 +264,7 @@ namespace MidnightMart.UI
 
             if (_resumeBtnTMP != null) _resumeBtnTMP.text = LocalizationManager.Instance.GetText("ui_resume", "TIẾP TỤC [ESC]", "RESUME [ESC]");
             if (_restartBtnTMP != null) _restartBtnTMP.text = LocalizationManager.Instance.GetText("ui_restart", "CHƠI LẠI CA TRỰC", "RESTART SHIFT");
+            if (_resetAllProgressBtnTMP != null) _resetAllProgressBtnTMP.text = LocalizationManager.T("RESET TIẾN ĐỘ VỀ ĐẦU (ĐÊM 1)", "RESET ALL PROGRESS (NIGHT 1)");
             if (_quitBtnTMP != null) _quitBtnTMP.text = LocalizationManager.Instance.GetText("ui_quit", "THOÁT GAME", "QUIT GAME");
         }
     }

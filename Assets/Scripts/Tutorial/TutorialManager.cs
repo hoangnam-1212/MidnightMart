@@ -54,6 +54,12 @@ namespace MidnightMart.Tutorial
 
         private void Start()
         {
+            // Nếu có PlayerHomeManager quản lý phần mở đầu tại nhà, nhường quyền kích hoạt khi người chơi đến tiệm
+            if (FindAnyObjectByType<MidnightMart.Prologue.PlayerHomeManager>() != null)
+            {
+                return;
+            }
+
             // Bắt đầu bước chuẩn bị: Dọn dẹp sàn nhà & Lau vệt bẩn
             StartTutorialStep(TutorialStep.CleanMess);
         }

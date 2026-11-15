@@ -1453,9 +1453,10 @@ namespace MidnightMart.EditorTools
             posCardObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_POSTerminal", new Color(0.15f, 0.16f, 0.18f), 0.7f);
 
             // Đế đỡ máy quét mã vạch và Súng quét trên quầy thu ngân (Scanner_Cradle.obj & Barcode_Scanner.obj)
+            // Đặt lệch hẳn sang cánh trái của nhân viên thu ngân (-0.75m), hoàn toàn tách biệt khỏi khu vực khách để đồ
             GameObject scannerStand = new GameObject("Scanner_Cradle_Stand");
             scannerStand.transform.SetParent(counterObj.transform);
-            scannerStand.transform.localPosition = new Vector3(-0.25f, 0.52f, 0.15f);
+            scannerStand.transform.localPosition = new Vector3(-0.75f, 0.52f, -0.15f);
             scannerStand.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
             scannerStand.transform.localScale = Vector3.one;
 
@@ -1480,8 +1481,8 @@ namespace MidnightMart.EditorTools
             }
 
             BoxCollider standCol = scannerStand.AddComponent<BoxCollider>();
-            standCol.center = new Vector3(0f, 0.12f, 0f);
-            standCol.size = new Vector3(0.35f, 0.35f, 0.35f);
+            standCol.center = new Vector3(0f, 0.10f, 0f);
+            standCol.size = new Vector3(0.18f, 0.22f, 0.18f); // Kích thước đế gọn gàng, tránh bắt nhầm tương tác
 
             // Súng quét mã vạch nằm trên giá đỡ (Barcode_Scanner_Gun_Visual)
             GameObject gunPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Barcode_Scanner.obj");
@@ -2402,7 +2403,7 @@ namespace MidnightMart.EditorTools
 
             GameObject placementPoint = new GameObject("Counter_Item_Placement");
             placementPoint.transform.SetParent(counter);
-            placementPoint.transform.localPosition = new Vector3(0f, 0.55f, 0.05f);
+            placementPoint.transform.localPosition = new Vector3(0.15f, 0.55f, 0.05f); // Đặt rõ ràng về phía đối diện khách hàng
 
             GameObject doorObj = new GameObject("Door_Entrance_Point");
             doorObj.transform.SetParent(parent);
@@ -3410,7 +3411,7 @@ namespace MidnightMart.EditorTools
             winRect.anchorMax = new Vector2(0.5f, 0.5f);
             winRect.pivot = new Vector2(0.5f, 0.5f);
             winRect.anchoredPosition = Vector2.zero;
-            winRect.sizeDelta = new Vector2(860f, 560f);
+            winRect.sizeDelta = new Vector2(1600f, 960f); // Phóng to gấp đôi theo yêu cầu người chơi
 
             Image winBg = windowPanel.AddComponent<Image>();
             winBg.color = new Color(0.05f, 0.07f, 0.1f, 0.98f);
@@ -3424,7 +3425,7 @@ namespace MidnightMart.EditorTools
             headerRect.anchorMax = new Vector2(1f, 1f);
             headerRect.pivot = new Vector2(0.5f, 1f);
             headerRect.anchoredPosition = Vector2.zero;
-            headerRect.sizeDelta = new Vector2(0f, 48f);
+            headerRect.sizeDelta = new Vector2(0f, 76f);
             Image headerBg = headerBar.AddComponent<Image>();
             headerBg.color = new Color(0.08f, 0.12f, 0.18f, 1f);
 
@@ -3434,10 +3435,10 @@ namespace MidnightMart.EditorTools
             TextMeshProUGUI titleTMP = titleObj.AddComponent<TextMeshProUGUI>();
             titleTMP.rectTransform.anchorMin = new Vector2(0f, 0f);
             titleTMP.rectTransform.anchorMax = new Vector2(0.6f, 1f);
-            titleTMP.rectTransform.anchoredPosition = new Vector2(16f, 0f);
-            titleTMP.rectTransform.sizeDelta = new Vector2(-16f, 0f);
+            titleTMP.rectTransform.anchoredPosition = new Vector2(24f, 0f);
+            titleTMP.rectTransform.sizeDelta = new Vector2(-24f, 0f);
             titleTMP.alignment = TextAlignmentOptions.MidlineLeft;
-            titleTMP.fontSize = 15f;
+            titleTMP.fontSize = 26f;
             titleTMP.fontStyle = FontStyles.Bold;
             titleTMP.color = new Color(0.1f, 0.85f, 0.95f);
             titleTMP.text = "🖥️ MIDNIGHT MART TERMINAL [OS v2.4]";
@@ -3452,7 +3453,7 @@ namespace MidnightMart.EditorTools
             moneyTMP.rectTransform.anchoredPosition = Vector2.zero;
             moneyTMP.rectTransform.sizeDelta = Vector2.zero;
             moneyTMP.alignment = TextAlignmentOptions.MidlineRight;
-            moneyTMP.fontSize = 14f;
+            moneyTMP.fontSize = 24f;
             moneyTMP.fontStyle = FontStyles.Bold;
             moneyTMP.color = new Color(0.3f, 1.0f, 0.5f);
             moneyTMP.text = "QUỸ TIỆM: $150.00";
@@ -3465,8 +3466,8 @@ namespace MidnightMart.EditorTools
             closeRect.anchorMin = new Vector2(1f, 0.5f);
             closeRect.anchorMax = new Vector2(1f, 0.5f);
             closeRect.pivot = new Vector2(1f, 0.5f);
-            closeRect.anchoredPosition = new Vector2(-10f, 0f);
-            closeRect.sizeDelta = new Vector2(120f, 32f);
+            closeRect.anchoredPosition = new Vector2(-16f, 0f);
+            closeRect.sizeDelta = new Vector2(190f, 50f);
             Image closeBtnBg = closeBtnObj.AddComponent<Image>();
             closeBtnBg.color = new Color(0.7f, 0.15f, 0.15f, 0.9f);
             Button closeBtn = closeBtnObj.AddComponent<Button>();
@@ -3479,7 +3480,7 @@ namespace MidnightMart.EditorTools
             closeTMP.rectTransform.anchorMax = Vector2.one;
             closeTMP.rectTransform.sizeDelta = Vector2.zero;
             closeTMP.alignment = TextAlignmentOptions.Center;
-            closeTMP.fontSize = 12f;
+            closeTMP.fontSize = 18f;
             closeTMP.fontStyle = FontStyles.Bold;
             closeTMP.color = Color.white;
             closeTMP.text = "[X] ĐÓNG (ESC)";
@@ -3492,8 +3493,8 @@ namespace MidnightMart.EditorTools
             tabRect.anchorMin = new Vector2(0f, 1f);
             tabRect.anchorMax = new Vector2(1f, 1f);
             tabRect.pivot = new Vector2(0.5f, 1f);
-            tabRect.anchoredPosition = new Vector2(0f, -50f);
-            tabRect.sizeDelta = new Vector2(0f, 38f);
+            tabRect.anchoredPosition = new Vector2(0f, -80f);
+            tabRect.sizeDelta = new Vector2(0f, 58f);
 
             // Tab 1 Button: Database
             GameObject tabDbObj = new GameObject("Tab_Database_Btn");
@@ -3502,8 +3503,8 @@ namespace MidnightMart.EditorTools
             RectTransform tabDbRect = tabDbObj.AddComponent<RectTransform>();
             tabDbRect.anchorMin = new Vector2(0f, 0f);
             tabDbRect.anchorMax = new Vector2(0.5f, 1f);
-            tabDbRect.anchoredPosition = new Vector2(10f, 0f);
-            tabDbRect.sizeDelta = new Vector2(-15f, 0f);
+            tabDbRect.anchoredPosition = new Vector2(16f, 0f);
+            tabDbRect.sizeDelta = new Vector2(-24f, 0f);
             Image tabDbBg = tabDbObj.AddComponent<Image>();
             tabDbBg.color = new Color(0.12f, 0.18f, 0.25f, 1f);
             Button tabDbBtn = tabDbObj.AddComponent<Button>();
@@ -3515,7 +3516,7 @@ namespace MidnightMart.EditorTools
             tabDbTMP.rectTransform.anchorMax = Vector2.one;
             tabDbTMP.rectTransform.sizeDelta = Vector2.zero;
             tabDbTMP.alignment = TextAlignmentOptions.Center;
-            tabDbTMP.fontSize = 13f;
+            tabDbTMP.fontSize = 20f;
             tabDbTMP.fontStyle = FontStyles.Bold;
             tabDbTMP.color = new Color(0.2f, 0.9f, 1f);
             tabDbTMP.text = "📋 [F1] CSDL CÔNG DÂN BLACKWOOD";
@@ -3527,8 +3528,8 @@ namespace MidnightMart.EditorTools
             RectTransform tabSpRect = tabSpObj.AddComponent<RectTransform>();
             tabSpRect.anchorMin = new Vector2(0.5f, 0f);
             tabSpRect.anchorMax = new Vector2(1f, 1f);
-            tabSpRect.anchoredPosition = new Vector2(5f, 0f);
-            tabSpRect.sizeDelta = new Vector2(-15f, 0f);
+            tabSpRect.anchoredPosition = new Vector2(8f, 0f);
+            tabSpRect.sizeDelta = new Vector2(-24f, 0f);
             Image tabSpBg = tabSpObj.AddComponent<Image>();
             tabSpBg.color = new Color(0.1f, 0.14f, 0.18f, 1f);
             Button tabSpBtn = tabSpObj.AddComponent<Button>();
@@ -3540,7 +3541,7 @@ namespace MidnightMart.EditorTools
             tabSpTMP.rectTransform.anchorMax = Vector2.one;
             tabSpTMP.rectTransform.sizeDelta = Vector2.zero;
             tabSpTMP.alignment = TextAlignmentOptions.Center;
-            tabSpTMP.fontSize = 13f;
+            tabSpTMP.fontSize = 20f;
             tabSpTMP.fontStyle = FontStyles.Bold;
             tabSpTMP.color = new Color(1.0f, 0.85f, 0.2f);
             tabSpTMP.text = "🛒 [F2] TIẾP TẾ ĐÊM KHẨN CẤP";
@@ -3552,8 +3553,8 @@ namespace MidnightMart.EditorTools
             RectTransform caRect = contentArea.AddComponent<RectTransform>();
             caRect.anchorMin = Vector2.zero;
             caRect.anchorMax = Vector2.one;
-            caRect.sizeDelta = new Vector2(-20f, -100f);
-            caRect.anchoredPosition = new Vector2(0f, -46f);
+            caRect.sizeDelta = new Vector2(-32f, -160f);
+            caRect.anchoredPosition = new Vector2(0f, -72f);
 
             // TAB 1: Database Panel
             GameObject dbPanel = new GameObject("Tab_Database_Panel");
@@ -3573,9 +3574,9 @@ namespace MidnightMart.EditorTools
             citNameTMP.rectTransform.anchorMin = new Vector2(0f, 1f);
             citNameTMP.rectTransform.anchorMax = new Vector2(1f, 1f);
             citNameTMP.rectTransform.pivot = new Vector2(0f, 1f);
-            citNameTMP.rectTransform.anchoredPosition = new Vector2(25f, -15f);
-            citNameTMP.rectTransform.sizeDelta = new Vector2(-50f, 32f);
-            citNameTMP.fontSize = 18f;
+            citNameTMP.rectTransform.anchoredPosition = new Vector2(36f, -24f);
+            citNameTMP.rectTransform.sizeDelta = new Vector2(-72f, 48f);
+            citNameTMP.fontSize = 28f;
             citNameTMP.fontStyle = FontStyles.Bold;
             citNameTMP.color = new Color(0.2f, 0.9f, 1f);
             citNameTMP.text = "HỒ SƠ: CHƯA CÓ KHÁCH HÀNG TẠI QUẦY";
@@ -3587,9 +3588,9 @@ namespace MidnightMart.EditorTools
             citStatusTMP.rectTransform.anchorMin = new Vector2(0f, 1f);
             citStatusTMP.rectTransform.anchorMax = new Vector2(1f, 1f);
             citStatusTMP.rectTransform.pivot = new Vector2(0f, 1f);
-            citStatusTMP.rectTransform.anchoredPosition = new Vector2(25f, -50f);
-            citStatusTMP.rectTransform.sizeDelta = new Vector2(-50f, 28f);
-            citStatusTMP.fontSize = 14f;
+            citStatusTMP.rectTransform.anchoredPosition = new Vector2(36f, -80f);
+            citStatusTMP.rectTransform.sizeDelta = new Vector2(-72f, 40f);
+            citStatusTMP.fontSize = 22f;
             citStatusTMP.fontStyle = FontStyles.Bold;
             citStatusTMP.color = Color.gray;
             citStatusTMP.text = "TRẠNG THÁI: CHỜ KẾT NỐI CAMERA...";
@@ -3600,10 +3601,10 @@ namespace MidnightMart.EditorTools
             TextMeshProUGUI citDetailsTMP = citDetailsObj.AddComponent<TextMeshProUGUI>();
             citDetailsTMP.rectTransform.anchorMin = Vector2.zero;
             citDetailsTMP.rectTransform.anchorMax = Vector2.one;
-            citDetailsTMP.rectTransform.sizeDelta = new Vector2(-50f, -95f);
-            citDetailsTMP.rectTransform.anchoredPosition = new Vector2(0f, -38f);
-            citDetailsTMP.fontSize = 14f;
-            citDetailsTMP.lineSpacing = 15f;
+            citDetailsTMP.rectTransform.sizeDelta = new Vector2(-72f, -145f);
+            citDetailsTMP.rectTransform.anchoredPosition = new Vector2(0f, -60f);
+            citDetailsTMP.fontSize = 22f;
+            citDetailsTMP.lineSpacing = 22f;
             citDetailsTMP.textWrappingMode = TextWrappingModes.Normal;
             citDetailsTMP.color = new Color(0.85f, 0.9f, 0.95f);
             citDetailsTMP.text = "Hệ thống đang quét mặt tiền siêu thị... Vui lòng chờ khách mang đồ lên quầy.";
@@ -3627,14 +3628,14 @@ namespace MidnightMart.EditorTools
             spFeedTMP.rectTransform.anchorMin = new Vector2(0f, 1f);
             spFeedTMP.rectTransform.anchorMax = new Vector2(1f, 1f);
             spFeedTMP.rectTransform.pivot = new Vector2(0f, 1f);
-            spFeedTMP.rectTransform.anchoredPosition = new Vector2(25f, -12f);
-            spFeedTMP.rectTransform.sizeDelta = new Vector2(-50f, 26f);
-            spFeedTMP.fontSize = 13f;
+            spFeedTMP.rectTransform.anchoredPosition = new Vector2(36f, -18f);
+            spFeedTMP.rectTransform.sizeDelta = new Vector2(-72f, 38f);
+            spFeedTMP.fontSize = 22f;
             spFeedTMP.fontStyle = FontStyles.Bold;
             spFeedTMP.color = new Color(1f, 0.85f, 0.2f);
             spFeedTMP.text = "Chọn gói tiếp tế cần mua để sẵn sàng chiến đấu:";
 
-            // Helper tạo nút Mua hàng
+            // Helper tạo nút Mua hàng (Gấp đôi kích thước thẻ: 720x190)
             System.Func<string, string, Vector2, Button> CreateBuyCard = (itemName, desc, pos) =>
             {
                 GameObject card = new GameObject($"Card_{itemName}");
@@ -3645,7 +3646,7 @@ namespace MidnightMart.EditorTools
                 crt.anchorMax = new Vector2(0.5f, 0.5f);
                 crt.pivot = new Vector2(0.5f, 0.5f);
                 crt.anchoredPosition = pos;
-                crt.sizeDelta = new Vector2(380f, 120f);
+                crt.sizeDelta = new Vector2(720f, 190f);
                 Image cardBg = card.AddComponent<Image>();
                 cardBg.color = new Color(0.12f, 0.16f, 0.22f, 0.9f);
                 Button cardBtn = card.AddComponent<Button>();
@@ -3656,20 +3657,20 @@ namespace MidnightMart.EditorTools
                 TextMeshProUGUI cardTMP = cardText.AddComponent<TextMeshProUGUI>();
                 cardTMP.rectTransform.anchorMin = Vector2.zero;
                 cardTMP.rectTransform.anchorMax = Vector2.one;
-                cardTMP.rectTransform.sizeDelta = new Vector2(-20f, -20f);
-                cardTMP.fontSize = 13f;
-                cardTMP.lineSpacing = 10f;
+                cardTMP.rectTransform.sizeDelta = new Vector2(-32f, -24f);
+                cardTMP.fontSize = 20f;
+                cardTMP.lineSpacing = 16f;
                 cardTMP.alignment = TextAlignmentOptions.MidlineLeft;
                 cardTMP.color = Color.white;
-                cardTMP.text = $"<size=15><b>{itemName}</b></size>\n<color=#A0C0E0>{desc}</color>";
+                cardTMP.text = $"<size=24><b>{itemName}</b></size>\n<color=#A0C0E0>{desc}</color>";
 
                 return cardBtn;
             };
 
-            Button buyPistolBtn = CreateBuyCard("[MUA] Gói Đạn 9mm ($15)", "10 viên đạn súng lục. Dùng để đối phó quái vật nhanh.", new Vector2(-195f, 50f));
-            Button buyShotgunBtn = CreateBuyCard("[MUA] Hộp Đạn Shotgun ($30)", "4 viên đạn ria 12-Gauge. Sát thương cực lớn ở cự ly gần.", new Vector2(195f, 50f));
-            Button buyEnergyBtn = CreateBuyCard("[MUA] Nước Tăng Lực ($12)", "Hồi phục 100% thể lực chạy nước rút (Sprint) để thả diều Boss.", new Vector2(-195f, -80f));
-            Button buyBarricadeBtn = CreateBuyCard("[MUA] Thanh Gỗ Chặn Cửa ($25)", "Gia cố che chắn quầy thu ngân phòng thủ.", new Vector2(195f, -80f));
+            Button buyPistolBtn = CreateBuyCard("[MUA] Gói Đạn 9mm ($15)", "10 viên đạn súng lục. Dùng để đối phó quái vật nhanh.", new Vector2(-380f, 110f));
+            Button buyShotgunBtn = CreateBuyCard("[MUA] Hộp Đạn Shotgun ($30)", "4 viên đạn ria 12-Gauge. Sát thương cực lớn ở cự ly gần.", new Vector2(380f, 110f));
+            Button buyEnergyBtn = CreateBuyCard("[MUA] Nước Tăng Lực ($12)", "Hồi phục 100% thể lực chạy nước rút (Sprint) để thả diều Boss.", new Vector2(-380f, -110f));
+            Button buyBarricadeBtn = CreateBuyCard("[MUA] Thanh Gỗ Chặn Cửa ($25)", "Gia cố che chắn quầy thu ngân phòng thủ.", new Vector2(380f, -110f));
 
             spPanel.SetActive(false); // Tab database mở trước
 
@@ -3727,7 +3728,7 @@ namespace MidnightMart.EditorTools
             dialogRt.anchorMin = new Vector2(0.5f, 0.5f);
             dialogRt.anchorMax = new Vector2(0.5f, 0.5f);
             dialogRt.pivot = new Vector2(0.5f, 0.5f);
-            dialogRt.sizeDelta = new Vector2(680f, 560f);
+            dialogRt.sizeDelta = new Vector2(720f, 640f);
             Image dialogBg = dialogBox.AddComponent<Image>();
             dialogBg.color = new Color(0.08f, 0.10f, 0.15f, 0.98f);
 
@@ -3840,9 +3841,10 @@ namespace MidnightMart.EditorTools
             CreateSliderRow(dialogBox, -275f, "Nhạc nền & Bầu không khí (Music/BGM):", 0.75f, out Slider musicSlider, out TextMeshProUGUI musicLabelTMP, out TextMeshProUGUI musicValueTMP, ResetUITransform);
 
             // Phần 3: Các Nút Hành Động
-            CreateMenuActionButton(dialogBox, -345f, new Color(0.12f, 0.55f, 0.30f), "TIẾP TỤC CHƠI [ESC]", out Button resumeBtn, out TextMeshProUGUI resumeBtnTMP, ResetUITransform);
-            CreateMenuActionButton(dialogBox, -405f, new Color(0.20f, 0.25f, 0.38f), "CHƠI LẠI CA TRỰC", out Button restartBtn, out TextMeshProUGUI restartBtnTMP, ResetUITransform);
-            CreateMenuActionButton(dialogBox, -465f, new Color(0.55f, 0.15f, 0.15f), "THOÁT GAME", out Button quitBtn, out TextMeshProUGUI quitBtnTMP, ResetUITransform);
+            CreateMenuActionButton(dialogBox, -330f, new Color(0.12f, 0.55f, 0.30f), "TIẾP TỤC CHƠI [ESC]", out Button resumeBtn, out TextMeshProUGUI resumeBtnTMP, ResetUITransform);
+            CreateMenuActionButton(dialogBox, -385f, new Color(0.20f, 0.25f, 0.38f), "CHƠI LẠI CA TRỰC NÀY", out Button restartBtn, out TextMeshProUGUI restartBtnTMP, ResetUITransform);
+            CreateMenuActionButton(dialogBox, -440f, new Color(0.45f, 0.20f, 0.20f), "RESET TIẾN ĐỘ VỀ ĐẦU (ĐÊM 1)", out Button resetProgBtn, out TextMeshProUGUI resetProgBtnTMP, ResetUITransform);
+            CreateMenuActionButton(dialogBox, -495f, new Color(0.55f, 0.15f, 0.15f), "THOÁT GAME", out Button quitBtn, out TextMeshProUGUI quitBtnTMP, ResetUITransform);
 
             // Wire up properties to PauseSettingsUI
             SerializedObject pSO = new SerializedObject(pauseUI);
@@ -3864,6 +3866,8 @@ namespace MidnightMart.EditorTools
             SafeSetObject(pSO, "_resumeBtnTMP", resumeBtnTMP);
             SafeSetObject(pSO, "_restartBtn", restartBtn);
             SafeSetObject(pSO, "_restartBtnTMP", restartBtnTMP);
+            SafeSetObject(pSO, "_resetAllProgressBtn", resetProgBtn);
+            SafeSetObject(pSO, "_resetAllProgressBtnTMP", resetProgBtnTMP);
             SafeSetObject(pSO, "_quitBtn", quitBtn);
             SafeSetObject(pSO, "_quitBtnTMP", quitBtnTMP);
             SafeSetObject(pSO, "_hudPauseBtn", hudPauseBtn);
@@ -4012,7 +4016,7 @@ namespace MidnightMart.EditorTools
             overlayRt.anchorMax = Vector2.one;
             overlayRt.sizeDelta = Vector2.zero;
             Image overlayImg = overlay.AddComponent<Image>();
-            overlayImg.color = new Color(0.02f, 0.02f, 0.03f, 0.98f);
+            overlayImg.color = new Color(0f, 0f, 0f, 1f); // 100% Đen tuyền che kín hoàn toàn khung cảnh 3D phía sau
 
             // 2. Tiêu đề Game: MIDNIGHT MART (Toàn màn hình, đặt ở nửa trên)
             GameObject titleObj = new GameObject("Menu_Title");
@@ -4191,7 +4195,10 @@ namespace MidnightMart.EditorTools
             BossMonsterAI bossAI = bossObj.AddComponent<BossMonsterAI>();
             bossObj.SetActive(false); // Ẩn Boss khi bắt đầu, kích hoạt lúc 04:30 AM hoặc khi quái vật thoát
 
-            // Tải mô hình nhân vật Nữ và Kẻ giả mạo có gắn xương (Rigged Humanoid FBX)
+            // Tải mô hình nhân vật Nam, Nữ và Kẻ giả mạo có gắn xương (Rigged Humanoid FBX)
+            GameObject maleModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Customer_Male_Rigged.fbx");
+            if (maleModel == null) maleModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Customer_Male.obj");
+
             GameObject femaleModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Customer_Female_Rigged.fbx");
             if (femaleModel == null) femaleModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Customer_Female.obj");
 
@@ -4204,6 +4211,7 @@ namespace MidnightMart.EditorTools
             SafeSetObject(nightSO, "_npcPrefab", customerPrefab);
             SafeSetObject(nightSO, "_bossPrefab", bossAI);
             SafeSetObject(nightSO, "_femaleCustomerModel", femaleModel);
+            SafeSetObject(nightSO, "_maleCustomerModel", maleModel);
             SafeSetObject(nightSO, "_doppelgangerModel", doppelModel);
             SafeSetObject(nightSO, "_doorEntrancePoint", doorPoint);
             SafeSetObject(nightSO, "_counterWaitingPoint", waitingPoint);
