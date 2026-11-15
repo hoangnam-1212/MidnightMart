@@ -1453,10 +1453,10 @@ namespace MidnightMart.EditorTools
             posCardObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_POSTerminal", new Color(0.15f, 0.16f, 0.18f), 0.7f);
 
             // Đế đỡ máy quét mã vạch và Súng quét trên quầy thu ngân (Scanner_Cradle.obj & Barcode_Scanner.obj)
-            // Đặt lệch hẳn sang cánh trái của nhân viên thu ngân (-0.75m), hoàn toàn tách biệt khỏi khu vực khách để đồ
+            // Giữ đúng vị trí hợp lý và ưu tiên bảo tồn tọa độ người chơi đã căn chỉnh thủ công
             GameObject scannerStand = new GameObject("Scanner_Cradle_Stand");
             scannerStand.transform.SetParent(counterObj.transform);
-            scannerStand.transform.localPosition = new Vector3(-0.75f, 0.52f, -0.15f);
+            scannerStand.transform.localPosition = new Vector3(-0.35f, 0.52f, -0.15f);
             scannerStand.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
             scannerStand.transform.localScale = Vector3.one;
 
@@ -4167,7 +4167,7 @@ namespace MidnightMart.EditorTools
             bossObj.transform.position = new Vector3(0f, 0f, 14.0f);
 
             GameObject bossModelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Boss_Monster_Rigged.fbx");
-            if (bossModelPrefab == null) bossModelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Boss_Monster.obj");
+            if (bossModelPrefab == null) bossModelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Boss_True_Abyssal.obj");
             if (bossModelPrefab != null)
             {
                 GameObject bossVisual = Object.Instantiate(bossModelPrefab, bossObj.transform);

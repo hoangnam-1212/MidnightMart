@@ -24,6 +24,7 @@ namespace MidnightMart.Player
         [SerializeField] private float _pickupSmoothSpeed = 15f;
 
         private PlayerInventory _inventory;
+        private CharacterController _characterController;
 
         // Bộ đệm Raycast không tạo rác (Non-Alloc Buffer)
         private readonly RaycastHit[] _hitBuffer = new RaycastHit[8];
@@ -35,16 +36,29 @@ namespace MidnightMart.Player
         private float _lastInteractionTimestamp = -1f;
         private const float INTERACTION_DEBOUNCE = 0.35f;
 
+        // Danh sách Collider của vật thể đang cầm (dùng để vô hiệu hóa khi cầm và phục hồi khi thả)
+        private readonly System.Collections.Generic.List<Collider> _heldItemColliders = new System.Collections.Generic.List<Collider>();
+        private readonly System.Collections.Generic.Dictionary<Collider, bool> _heldItemColliderStates = new System.Collections.Generic.Dictionary<Collider, bool>();
+
         public bool IsHoldingItem => _isHoldingItem;
         public Transform HeldItemTransform => _heldItemTransform;
 
         private void Awake()
         {
             _inventory = GetComponent<PlayerInventory>();
+            _characterController = GetComponent<CharacterController>();
+            if (_characterController == null) _characterController = GetComponentInParent<CharacterController>();
+
             if (_cameraTransform == null)
             {
                 if (Camera.main != null) _cameraTransform = Camera.main.transform;
                 else _cameraTransform = GetComponentInChildren<Camera>()?.transform;
+            }
+
+            if (_itemHoldSocket == null && _cameraTransform != null)
+            {
+                Transform foundSocket = _cameraTransform.Find("Hold_Item_Socket");
+                if (foundSocket != null) _itemHoldSocket = foundSocket;
             }
 
             // Phòng thủ: Đảm bảo LayerMask quét mọi Layer (tránh bị kẹt ở giá trị 0 do serialize)
@@ -62,6 +76,10 @@ namespace MidnightMart.Player
         private void OnDisable()
         {
             GameEvents.OnDialogueStateChanged -= HandleDialogueStateChanged;
+            if (_isHoldingItem)
+            {
+                RestoreHeldItemColliders();
+            }
         }
 
         private void HandleDialogueStateChanged(bool isOpen)
@@ -326,6 +344,7 @@ namespace MidnightMart.Player
 
         /// <summary>
         /// Cầm một vật thể vật lý lên tay (Hold Item).
+        /// Vô hiệu hóa toàn bộ va chạm Collider với Player để loại bỏ triệt để hiện tượng kẹt phím di chuyển (WASD).
         /// </summary>
         public void PickUpItem(Transform item, Rigidbody rb)
         {
@@ -338,12 +357,41 @@ namespace MidnightMart.Player
             _heldItemRigidbody = rb;
             _isHoldingItem = true;
 
+            // 1. Tắt tạm thời Collider của vật thể và bỏ qua va chạm với CharacterController
+            _heldItemColliders.Clear();
+            _heldItemColliderStates.Clear();
+            if (item != null)
+            {
+                item.GetComponentsInChildren(true, _heldItemColliders);
+                for (int i = 0; i < _heldItemColliders.Count; i++)
+                {
+                    Collider col = _heldItemColliders[i];
+                    if (col != null)
+                    {
+                        _heldItemColliderStates[col] = col.enabled;
+                        col.enabled = false;
+                        if (_characterController != null)
+                        {
+                            Physics.IgnoreCollision(col, _characterController, true);
+                        }
+                    }
+                }
+            }
+
+            // 2. Chuyển Rigidbody sang Kinematic để không bị trọng lực kéo tụt
             if (_heldItemRigidbody != null)
             {
                 _heldItemRigidbody.isKinematic = true;
                 _heldItemRigidbody.useGravity = false;
                 _heldItemRigidbody.linearVelocity = Vector3.zero;
                 _heldItemRigidbody.angularVelocity = Vector3.zero;
+            }
+
+            // 3. Đưa vật thể lập tức tới vị trí socket để không bị giật lag khung hình đầu tiên
+            if (_itemHoldSocket != null && _heldItemTransform != null)
+            {
+                _heldItemTransform.position = _itemHoldSocket.position;
+                _heldItemTransform.rotation = _itemHoldSocket.rotation;
             }
 
             // Đồng bộ tên món hàng lên UI ô vuông kho đồ động
@@ -368,12 +416,22 @@ namespace MidnightMart.Player
                 mess.OnDropped();
             }
 
+            // Bật lại toàn bộ Collider của vật thể
+            RestoreHeldItemColliders();
+
+            // Đặt vị trí rơi hơi hướng ra phía trước mặt để tránh va quẹt vào chân người chơi
+            if (_cameraTransform != null)
+            {
+                _heldItemTransform.position = _cameraTransform.position + _cameraTransform.forward * 0.75f - Vector3.up * 0.15f;
+            }
+
             if (_heldItemRigidbody != null)
             {
                 _heldItemRigidbody.isKinematic = false;
                 _heldItemRigidbody.useGravity = true;
                 // Đẩy nhẹ về phía trước
-                _heldItemRigidbody.linearVelocity = _cameraTransform.forward * 1.5f;
+                Vector3 forwardDir = _cameraTransform != null ? _cameraTransform.forward : transform.forward;
+                _heldItemRigidbody.linearVelocity = forwardDir * 1.5f + Vector3.up * 0.5f;
             }
 
             _heldItemTransform = null;
@@ -394,6 +452,9 @@ namespace MidnightMart.Player
         /// </summary>
         public void ReleaseHeldItemSilently()
         {
+            // Bật lại Collider để vật thể nằm chắc chắn trên giá kệ
+            RestoreHeldItemColliders();
+
             _heldItemTransform = null;
             _heldItemRigidbody = null;
             _isHoldingItem = false;
@@ -405,6 +466,35 @@ namespace MidnightMart.Player
                 if (physSlot >= 0) _inventory.ClearSlot(physSlot);
             }
             GameEvents.TriggerHeldItemChanged(null);
+        }
+
+        /// <summary>
+        /// Khôi phục trạng thái hoạt động của các Collider trên vật thể sau khi buông tay.
+        /// </summary>
+        private void RestoreHeldItemColliders()
+        {
+            for (int i = 0; i < _heldItemColliders.Count; i++)
+            {
+                Collider col = _heldItemColliders[i];
+                if (col != null)
+                {
+                    if (_heldItemColliderStates.TryGetValue(col, out bool wasEnabled))
+                    {
+                        col.enabled = wasEnabled;
+                    }
+                    else
+                    {
+                        col.enabled = true;
+                    }
+
+                    if (_characterController != null)
+                    {
+                        Physics.IgnoreCollision(col, _characterController, false);
+                    }
+                }
+            }
+            _heldItemColliders.Clear();
+            _heldItemColliderStates.Clear();
         }
 
         /// <summary>
