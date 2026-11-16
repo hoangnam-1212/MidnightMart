@@ -614,7 +614,7 @@ namespace MidnightMart.UI
 
                 if (_bossCountdownTMP != null)
                 {
-                    _bossCountdownTMP.text = $"⚠️ CẢNH BÁO: {bossName.ToUpper()} ĐANG ĐẾN TRONG {Mathf.CeilToInt(remaining)}s!";
+                    _bossCountdownTMP.text = $"[!] CẢNH BÁO: {bossName.ToUpper()} ĐANG ĐẾN TRONG {Mathf.CeilToInt(remaining)}s!";
                 }
 
                 if (_bossCountdownFill != null)

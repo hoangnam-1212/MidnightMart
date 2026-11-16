@@ -259,7 +259,7 @@ namespace MidnightMart.Combat
         {
             if (_playerTransform == null) yield break;
 
-            GameEvents.TriggerSubtitle("Kỹ năng quái vật", "⚠️ BÓNG MA HƯ KHÔNG ĐANG BIẾN MẤT TRONG BÓNG TỐI!", 2.0f);
+            GameEvents.TriggerSubtitle("Kỹ năng quái vật", "[!] BÓNG MA HƯ KHÔNG ĐANG BIẾN MẤT TRONG BÓNG TỐI!", 2.0f);
             if (_audioSource != null && _attackRoarClip != null) _audioSource.PlayOneShot(_attackRoarClip);
 
             // Biến mất trong 0.4s
@@ -283,7 +283,7 @@ namespace MidnightMart.Combat
                 foreach (var r in _renderers) if (r != null) r.enabled = true;
             }
 
-            GameEvents.TriggerSubtitle("Cảnh báo", "⚠️ NÓ ĐÃ DỊCH CHUYỂN RA PHÍA SAU LƯNG BẠN!", 2.0f);
+            GameEvents.TriggerSubtitle("Cảnh báo", "[!] NÓ ĐÃ DỊCH CHUYỂN RA PHÍA SAU LƯNG BẠN!", 2.0f);
         }
 
         private IEnumerator AttackRoutine()

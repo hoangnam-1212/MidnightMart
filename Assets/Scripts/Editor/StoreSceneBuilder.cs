@@ -2977,7 +2977,7 @@ namespace MidnightMart.EditorTools
             gearTMP.fontSize = 28f;
             gearTMP.fontStyle = FontStyles.Bold;
             gearTMP.color = new Color(1.0f, 0.85f, 0.15f);
-            gearTMP.text = "⚙";
+            gearTMP.text = "[*]";
 
             // 3. Crosshair Dot (Tâm ngắm giữa màn hình - Nhỏ gọn 4px)
             GameObject crosshairObj = new GameObject("Crosshair_Dot");
@@ -3272,7 +3272,7 @@ namespace MidnightMart.EditorTools
             bossCdTMP.fontSize = 24f;
             bossCdTMP.fontStyle = FontStyles.Bold;
             bossCdTMP.color = Color.white;
-            bossCdTMP.text = "⚠️ CẢNH BÁO: CON TRÙM ĐANG ĐẾN! CHUẨN BỊ VŨ KHÍ (30s)";
+            bossCdTMP.text = "[!] CẢNH BÁO: CON TRÙM ĐANG ĐẾN! CHUẨN BỊ VŨ KHÍ (30s)";
 
             bossCountdownPanel.SetActive(false);
 
@@ -3519,7 +3519,7 @@ namespace MidnightMart.EditorTools
             tabDbTMP.fontSize = 20f;
             tabDbTMP.fontStyle = FontStyles.Bold;
             tabDbTMP.color = new Color(0.2f, 0.9f, 1f);
-            tabDbTMP.text = "📋 [F1] CSDL CÔNG DÂN BLACKWOOD";
+            tabDbTMP.text = "[F1] CSDL CÔNG DÂN BLACKWOOD";
 
             // Tab 2 Button: Supply Store
             GameObject tabSpObj = new GameObject("Tab_Supply_Btn");
@@ -3544,7 +3544,7 @@ namespace MidnightMart.EditorTools
             tabSpTMP.fontSize = 20f;
             tabSpTMP.fontStyle = FontStyles.Bold;
             tabSpTMP.color = new Color(1.0f, 0.85f, 0.2f);
-            tabSpTMP.text = "🛒 [F2] TIẾP TẾ ĐÊM KHẨN CẤP";
+            tabSpTMP.text = "[F2] TIẾP TẾ ĐÊM KHẨN CẤP";
 
             // Content Area Container
             GameObject contentArea = new GameObject("Content_Area");
@@ -3789,7 +3789,7 @@ namespace MidnightMart.EditorTools
             viTMP.fontSize = 18f;
             viTMP.fontStyle = FontStyles.Bold;
             viTMP.color = Color.white;
-            viTMP.text = "🇻🇳 Tiếng Việt";
+            viTMP.text = "[VN] Tiếng Việt";
 
             // Nút English
             GameObject btnEnObj = new GameObject("Btn_English");
@@ -3816,7 +3816,7 @@ namespace MidnightMart.EditorTools
             enTMP.fontSize = 18f;
             enTMP.fontStyle = FontStyles.Bold;
             enTMP.color = Color.white;
-            enTMP.text = "🇬🇧 English";
+            enTMP.text = "[EN] English";
 
             // Phần 2: Âm thanh (Audio Settings)
             GameObject audioSectionObj = new GameObject("Audio_Section_Text");
@@ -3832,7 +3832,7 @@ namespace MidnightMart.EditorTools
             audioTitleTMP.fontSize = 18f;
             audioTitleTMP.fontStyle = FontStyles.Bold;
             audioTitleTMP.color = new Color(0.85f, 0.90f, 0.95f);
-            audioTitleTMP.text = "🔊 ÂM LƯỢNG / AUDIO VOLUME:";
+            audioTitleTMP.text = "ÂM LƯỢNG / AUDIO VOLUME:";
 
             // Slider SFX / Ambience
             CreateSliderRow(dialogBox, -215f, "Âm thanh môi trường & Hiệu ứng (SFX):", 0.85f, out Slider sfxSlider, out TextMeshProUGUI sfxLabelTMP, out TextMeshProUGUI sfxValueTMP, ResetUITransform);
@@ -4113,8 +4113,8 @@ namespace MidnightMart.EditorTools
             };
 
             // Đúng 2 nút bấm chuẩn theo yêu cầu: PLAY & QUIT
-            Button btnPlay = CreateMenuButton("Btn_Play", "▶ BẮT ĐẦU CHƠI / PLAY", new Color(0.18f, 0.62f, 0.32f), new Vector2(0.5f, 0.45f), new Vector2(520f, 68f), 24f);
-            Button btnQuit = CreateMenuButton("Btn_Quit", "✕ THOÁT GAME / QUIT", new Color(0.72f, 0.20f, 0.20f), new Vector2(0.5f, 0.34f), new Vector2(520f, 62f), 22f);
+            Button btnPlay = CreateMenuButton("Btn_Play", "[>] BẮT ĐẦU CHƠI / PLAY", new Color(0.18f, 0.62f, 0.32f), new Vector2(0.5f, 0.45f), new Vector2(520f, 68f), 24f);
+            Button btnQuit = CreateMenuButton("Btn_Quit", "[X] THOÁT GAME / QUIT", new Color(0.72f, 0.20f, 0.20f), new Vector2(0.5f, 0.34f), new Vector2(520f, 62f), 22f);
 
             // Dòng thông tin phiên bản ở cạnh dưới màn hình
             GameObject footerObj = new GameObject("Menu_Footer");

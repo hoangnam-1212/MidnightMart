@@ -79,11 +79,11 @@ namespace MidnightMart.UI
                 {
                     if (SaveManager.HasSaveData && SaveManager.CurrentNight > 1)
                     {
-                        playText.text = $"▶ TIẾP TỤC (ĐÊM {SaveManager.CurrentNight}) • ${SaveManager.PlayerMoney:0}";
+                        playText.text = $"[>] TIẾP TỤC (ĐÊM {SaveManager.CurrentNight}) • ${SaveManager.PlayerMoney:0}";
                     }
                     else
                     {
-                        playText.text = "▶ BẮT ĐẦU CHƠI (PLAY)";
+                        playText.text = "[>] BẮT ĐẦU CHƠI (PLAY)";
                     }
                 }
             }

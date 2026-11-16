@@ -413,7 +413,7 @@ namespace MidnightMart.Night
             // Giai đoạn 1: Thanh thời gian đếm ngược 30 giây chuẩn bị phòng thủ
             GameEvents.TriggerBossCountdownStarted(30f, "THE FLESH STALKER");
             GameEvents.TriggerObjectiveUpdated("CẢNH BÁO (30s): DÙNG MÁY TÍNH MUA THÊM ĐẠN, NẠP SÚNG [R] VÀ NÉP VÀO GÓC!");
-            GameEvents.TriggerSubtitle("Hệ thống khẩn cấp", "⚠️ CẢNH BÁO: QUÁI TRÙM ĐANG ĐẾN TRONG 30 GIÂY! HÃY MUA ĐẠN VÀ CHUẨN BỊ PHÒNG THỦ!", 6.0f);
+            GameEvents.TriggerSubtitle("Hệ thống khẩn cấp", "[!] CẢNH BÁO: QUÁI TRÙM ĐANG ĐẾN TRONG 30 GIÂY! HÃY MUA ĐẠN VÀ CHUẨN BỊ PHÒNG THỦ!", 6.0f);
 
             yield return new WaitForSeconds(30f);
 
@@ -432,7 +432,7 @@ namespace MidnightMart.Night
         private void TriggerBlackoutEvent()
         {
             GameEvents.TriggerBlackout();
-            GameEvents.TriggerSubtitle("Hệ thống khẩn cấp", "⚠️ 03:30 AM: MẤT NGUỒN ĐIỆN CHÍNH! HÃY BẬT ĐÈN PIN [F] VÀ RÚT SHOTGUN [2]!", 5.5f);
+            GameEvents.TriggerSubtitle("Hệ thống khẩn cấp", "[!] 03:30 AM: MẤT NGUỒN ĐIỆN CHÍNH! HÃY BẬT ĐÈN PIN [F] VÀ RÚT SHOTGUN [2]!", 5.5f);
             GameEvents.TriggerObjectiveUpdated($"03:30 AM: THỦ TIỆM! BẦY QUÁI KÉO ĐẾN ({_escapedMonstersCount + 1} CON)");
 
             StartCoroutine(BlackoutRoutine());

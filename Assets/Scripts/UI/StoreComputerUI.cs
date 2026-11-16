@@ -195,7 +195,7 @@ namespace MidnightMart.UI
             {
                 if (_citizenStatusTMP != null)
                 {
-                    _citizenStatusTMP.text = "⚠️ BÁO ĐỘNG ĐỎ: ĐỐI TƯỢNG DỊ BIẾN / KẺ GIẢ DẠNG (DOPPELGÄNGER)!";
+                    _citizenStatusTMP.text = "[!] BÁO ĐỘNG ĐỎ: ĐỐI TƯỢNG DỊ BIẾN / KẺ GIẢ DẠNG (DOPPELGÄNGER)!";
                     _citizenStatusTMP.color = new Color(1f, 0.2f, 0.2f);
                 }
 

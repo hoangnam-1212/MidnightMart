@@ -113,7 +113,7 @@ namespace MidnightMart.Core
             Add("obj_give_change", "MỤC TIÊU: Nhấn [E] vào Máy tính tiền để thối lại ${0:F2} cho khách", "OBJECTIVE: Press [E] on Cash Register to return ${0:F2} change to customer");
             Add("obj_check_drawer", "MỤC TIÊU: Kéo mạnh ngăn kéo bí mật dưới quầy", "OBJECTIVE: Force open secret drawer under counter");
             Add("obj_use_pc", "MỤC TIÊU: Quay lưng lại dùng Máy Tính bàn sau kiểm tra CSDL / Mua đạn", "OBJECTIVE: Turn around to use Desk Computer to verify citizen / buy ammo");
-            Add("obj_boss_warning", "⚠️ CẢNH BÁO: CON TRÙM ĐANG ĐẾN! CHUẨN BỊ VŨ KHÍ ({0}s)!", "⚠️ WARNING: THE BOSS IS COMING! PREPARE WEAPONS ({0}s)!");
+            Add("obj_boss_warning", "[!] CẢNH BÁO: CON TRÙM ĐANG ĐẾN! CHUẨN BỊ VŨ KHÍ ({0}s)!", "[!] WARNING: THE BOSS IS COMING! PREPARE WEAPONS ({0}s)!");
             Add("obj_boss_fight", "MỤC TIÊU: CHIẾN ĐẤU & TIÊU DIỆT TRÙM THE FLESH STALKER!", "OBJECTIVE: FIGHT & ELIMINATE THE FLESH STALKER BOSS!");
             Add("obj_return_home", "MỤC TIÊU: Bước ra cửa, lên xe máy lái về nhà nghỉ ngơi sau ca trực", "OBJECTIVE: Step outside, mount bike and ride back home to rest");
             Add("obj_sleep_bed", "MỤC TIÊU: Bước vào phòng trọ và [E] Lên giường đi ngủ để bắt đầu Ngày 2", "OBJECTIVE: Enter room and [E] Sleep on bed to begin Day 2");
