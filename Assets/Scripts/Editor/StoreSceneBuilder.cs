@@ -1144,10 +1144,10 @@ namespace MidnightMart.EditorTools
 
                 Light lampLight = spotObj.AddComponent<Light>();
                 lampLight.type = LightType.Spot;
-                lampLight.range = 22f;
-                lampLight.spotAngle = 68f;
-                lampLight.innerSpotAngle = 38f;
-                lampLight.intensity = 2200f; // Độ sáng vừa phải tạo không gian đêm u ám rùng rợn
+                lampLight.range = 16f;
+                lampLight.spotAngle = 50f;
+                lampLight.innerSpotAngle = 25f;
+                lampLight.intensity = 950f; // Độ sáng tập trung vừa phải, tạo không gian đêm u ám rùng rợn
                 lampLight.color = new Color(1.0f, 0.88f, 0.58f);
                 lampLight.shadows = LightShadows.Soft;
 
@@ -1519,9 +1519,9 @@ namespace MidnightMart.EditorTools
             GameObject drawerObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drawerObj.name = "Secret_Under_Drawer";
             drawerObj.transform.SetParent(counterObj.transform);
-            drawerObj.transform.localPosition = new Vector3(-0.48f, 0.35f, -0.75f);
+            drawerObj.transform.localPosition = new Vector3(-0.48f, 0.35f, 0f);
             drawerObj.transform.localRotation = Quaternion.identity;
-            drawerObj.transform.localScale = new Vector3(0.45f, 0.28f, 0.85f);
+            drawerObj.transform.localScale = new Vector3(0.42f, 0.26f, 0.65f);
             drawerObj.GetComponent<Renderer>().sharedMaterial = woodMat;
             BoxCollider drawerCol = drawerObj.GetComponent<BoxCollider>();
             if (drawerCol != null)
@@ -1734,7 +1734,7 @@ namespace MidnightMart.EditorTools
             SafeSetObject(drawerSO, "_drawerModel", drawerObj.transform);
             SafeSetObject(drawerSO, "_davidsBrokenPhone", phoneObj);
             SafeSetObject(drawerSO, "_shotgunWorldModel", pistolModel);
-            SafeSetVector3(drawerSO, "_openedOffset", new Vector3(-0.45f, 0f, 0f));
+            SafeSetVector3(drawerSO, "_openedOffset", new Vector3(-0.38f, 0f, 0f));
             SafeSetObject(drawerSO, "_openStuckSound", AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SFX/Drawer_Slide_Open.wav"));
             drawerSO.ApplyModifiedProperties();
 
@@ -4513,7 +4513,7 @@ namespace MidnightMart.EditorTools
             }
             moonLight.enabled = true;
             moonLight.color = new Color(0.38f, 0.48f, 0.72f); // Ánh trăng xanh bạc rùng rợn
-            moonLight.intensity = 0.85f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
+            moonLight.intensity = 0.20f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
             moonLight.transform.rotation = Quaternion.Euler(58f, -35f, 0f);
 
             // 3. Tạo bầu trời đêm mây tối và bầy sao lấp lánh
@@ -4530,7 +4530,7 @@ namespace MidnightMart.EditorTools
             vol.isGlobal = true;
             vol.priority = 100f;
 
-            string profilePath = "Assets/Settings/MysteriousNightVolumeProfile.asset";
+            string profilePath = "Assets/Settings/SkyandFogSettingsProfile.asset";
             VolumeProfile profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(profilePath);
             if (profile == null)
             {
@@ -4543,13 +4543,13 @@ namespace MidnightMart.EditorTools
             }
             vol.sharedProfile = profile;
 
-            // 5. Cố định Exposure (Fixed Exposure = 2.2 EV) - Môi trường đêm sáng rõ, nhìn thấy rõ lòng đường và cây cối
+            // 5. Cố định Exposure (Fixed Exposure = 9.0 EV) - Môi trường đêm chuẩn horror, không bị loá trắng
             if (!profile.TryGet<Exposure>(out Exposure exp))
             {
                 exp = profile.Add<Exposure>(true);
             }
             exp.mode.Override(ExposureMode.Fixed);
-            exp.fixedExposure.Override(2.2f);
+            exp.fixedExposure.Override(9.0f);
 
             // 6. Sương mù dày đặc rùng rợn (Dark Eerie Fog) hắt màu xanh chàm u tối
             if (!profile.TryGet<Fog>(out Fog fog))

@@ -158,6 +158,26 @@ namespace MidnightMart.Player
             }
         }
 
+        private static bool IsStructuralWall(Collider col)
+        {
+            if (col == null || col.isTrigger) return false;
+            string name = col.name.ToLower();
+            if (name.Contains("wall") || name.Contains("glass") || name.Contains("door_frame") || 
+                name.Contains("ceiling") || name.Contains("storefront") || name.Contains("tuong") || 
+                name.Contains("cua_"))
+            {
+                return true;
+            }
+            try
+            {
+                return col.gameObject.tag == "Wall";
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Bắn tia Raycast & SphereCast từ tâm camera để kiểm tra vật thể tương tác trước mặt.
         /// Đảm bảo loại bỏ hoàn toàn va chạm từ bản thân người chơi và vật thể đang cầm trên tay.
@@ -223,8 +243,7 @@ namespace MidnightMart.Player
                                 !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
                                 !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
                             {
-                                string occName = occluderHit.collider.name.ToLower();
-                                if (occName.Contains("wall") || occName.Contains("glass") || occName.Contains("door_frame") || occName.Contains("ceiling") || occName.Contains("storefront") || occluderHit.collider.CompareTag("Wall"))
+                                if (IsStructuralWall(occluderHit.collider))
                                 {
                                     // Bị tường hoặc kính che khuất tầm nhìn -> Ngừng quét, không cho nhặt xuyên tường!
                                     break;
@@ -239,14 +258,10 @@ namespace MidnightMart.Player
                 }
 
                 // Nếu gặp bức tường kiến trúc thực sự (Tường nhà, kính mặt tiền):
-                if (!hit.collider.isTrigger)
+                if (IsStructuralWall(hit.collider))
                 {
-                    string colName = hit.collider.name.ToLower();
-                    if (colName.Contains("wall") || colName.Contains("glass") || colName.Contains("door_frame") || colName.Contains("ceiling") || colName.Contains("storefront") || hit.collider.CompareTag("Wall"))
-                    {
-                        // Tia nhìn bị chặn bởi tường cứng! Ngăn tương tác với các vật thể phía sau tường
-                        break;
-                    }
+                    // Tia nhìn bị chặn bởi tường cứng! Ngăn tương tác với các vật thể phía sau tường
+                    break;
                 }
             }
 
@@ -296,8 +311,7 @@ namespace MidnightMart.Player
                                     !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
                                     !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
                                 {
-                                    string occName = occluderHit.collider.name.ToLower();
-                                    if (occName.Contains("wall") || occName.Contains("glass") || occName.Contains("door_frame") || occName.Contains("ceiling") || occName.Contains("storefront") || occluderHit.collider.CompareTag("Wall"))
+                                    if (IsStructuralWall(occluderHit.collider))
                                     {
                                         break;
                                     }
@@ -310,13 +324,9 @@ namespace MidnightMart.Player
                         break;
                     }
 
-                    if (!hit.collider.isTrigger)
+                    if (IsStructuralWall(hit.collider))
                     {
-                        string colName = hit.collider.name.ToLower();
-                        if (colName.Contains("wall") || colName.Contains("glass") || colName.Contains("door_frame") || colName.Contains("ceiling") || colName.Contains("storefront") || hit.collider.CompareTag("Wall"))
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             }
