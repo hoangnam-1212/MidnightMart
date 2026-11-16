@@ -261,14 +261,36 @@ namespace MidnightMart.Night
                     break;
 
                 case 2:
-                    // Khách 3 (01:30 AM): Thomas Vance (Quái vật giả dạng Đêm - Năm sinh 1820! Hơn 200 tuổi!)
+                    // Khách 3 (01:30 AM): Kẻ giả mạo thay đổi theo từng Đêm (Độ khó tăng tiến)
                     if (_doppelgangerModel != null) _npcPrefab.ApplyVisualMesh(_doppelgangerModel);
-                    items.Add(CreateCartItem(cartObj.transform, "Hộp Thịt Đóng Hộp", 5.50f, new Color(0.4f, 0.25f, 0.2f), new Vector3(0.18f, 0.16f, 0.18f)));
-                    items.Add(CreateCartItem(cartObj.transform, "Chai Nước Tẩy Trắng", 6.00f, new Color(0.2f, 0.4f, 0.8f), new Vector3(0.14f, 0.28f, 0.14f)));
-                    items.Add(CreateCartItem(cartObj.transform, "Bao Diêm Gỗ", 1.50f, new Color(0.7f, 0.1f, 0.1f), new Vector3(0.1f, 0.04f, 0.14f)));
-                    items.Add(CreateCartItem(cartObj.transform, "Chai Nước Suối", 2.00f, new Color(0.3f, 0.6f, 0.95f), new Vector3(0.12f, 0.26f, 0.12f)));
-                    CustomerIDCard id3 = CreateIDCard(cartObj.transform, "Thomas Vance", 1820, "ANOMALY-001", "Khu rừng cấm Blackwood County", true);
-                    _npcPrefab.SetupCustomer("Kẻ lạ mặt trùm đầu", true, items, id3, 30.0f);
+
+                    if (_currentDay == 1)
+                    {
+                        // ĐÊM 1: Dấu hiệu lộ liễu - Năm sinh 1820 (>200 tuổi), mã ANOMALY-001, không có bóng đổ
+                        items.Add(CreateCartItem(cartObj.transform, "Hộp Thịt Đóng Hộp", 5.50f, new Color(0.4f, 0.25f, 0.2f), new Vector3(0.18f, 0.16f, 0.18f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Chai Nước Tẩy Trắng", 6.00f, new Color(0.2f, 0.4f, 0.8f), new Vector3(0.14f, 0.28f, 0.14f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Bao Diêm Gỗ", 1.50f, new Color(0.7f, 0.1f, 0.1f), new Vector3(0.1f, 0.04f, 0.14f)));
+                        CustomerIDCard id3 = CreateIDCard(cartObj.transform, "Thomas Vance", 1820, "ANOMALY-001", "Khu rừng cấm Blackwood County", true);
+                        _npcPrefab.SetupCustomer("Kẻ lạ mặt trùm đầu", true, items, id3, 30.0f);
+                    }
+                    else if (_currentDay == 2)
+                    {
+                        // ĐÊM 2: Dấu hiệu tinh vi - Năm sinh 1985 bình thường, nhưng mã ID giả mạo không khớp máy tính
+                        items.Add(CreateCartItem(cartObj.transform, "Can Axit Tẩy Rửa", 8.50f, new Color(0.3f, 0.7f, 0.4f), new Vector3(0.18f, 0.28f, 0.18f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Cuộn Túi Đen Dày", 4.20f, new Color(0.1f, 0.1f, 0.1f), new Vector3(0.10f, 0.10f, 0.25f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Băng Keo Dính Lớn", 3.00f, new Color(0.6f, 0.5f, 0.3f), new Vector3(0.12f, 0.06f, 0.12f)));
+                        CustomerIDCard id3 = CreateIDCard(cartObj.transform, "Arthur Pendelton", 1985, "FAKE-BW-882", "Ngõ Cụt Không Số, Blackwood", true);
+                        _npcPrefab.SetupCustomer("Người đàn ông đeo kính đen", true, items, id3, 40.0f);
+                    }
+                    else
+                    {
+                        // ĐÊM 3+: Kẻ ngụy trang cấp cao - Giả dạng tinh xảo, mắt đỏ dõi theo người chơi, mua đồ giải phẫu rùng rợn
+                        items.Add(CreateCartItem(cartObj.transform, "Dao Phay Sắc Nhọn", 16.50f, new Color(0.8f, 0.82f, 0.85f), new Vector3(0.08f, 0.04f, 0.38f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Bình Clo Nồng Độ Cao", 14.00f, new Color(0.7f, 0.2f, 0.2f), new Vector3(0.16f, 0.30f, 0.16f)));
+                        items.Add(CreateCartItem(cartObj.transform, "Bao Tải Đay Cỡ Đại", 6.50f, new Color(0.5f, 0.45f, 0.35f), new Vector3(0.22f, 0.10f, 0.25f)));
+                        CustomerIDCard id3 = CreateIDCard(cartObj.transform, "Bác Sĩ Robert Hall", 1978, "CORRUPTED-DNA", "Bệnh Viện Bỏ Hoang Blackwood", true);
+                        _npcPrefab.SetupCustomer("Bác sĩ Robert (Mắt đỏ ngầu)", true, items, id3, 60.0f);
+                    }
                     break;
 
                 case 3:
@@ -282,13 +304,13 @@ namespace MidnightMart.Night
                     break;
 
                 default:
-                    // Khách 5 (02:45 AM): Kẻ kỳ quái trước giờ bão (Quái vật giả dạng tinh vi - Dao bếp, Thịt sống, Mã ID dị thường)
+                    // Khách 5 (02:45 AM): Kẻ kỳ quái trước giờ bão (Quái vật giả dạng tinh vi trước khi cúp điện)
                     if (_doppelgangerModel != null) _npcPrefab.ApplyVisualMesh(_doppelgangerModel);
                     items.Add(CreateCartItem(cartObj.transform, "Dao Bếp Cán Đen", 12.00f, new Color(0.15f, 0.15f, 0.18f), new Vector3(0.08f, 0.05f, 0.35f)));
                     items.Add(CreateCartItem(cartObj.transform, "Tảng Thịt Tươi", 9.50f, new Color(0.85f, 0.15f, 0.15f), new Vector3(0.24f, 0.10f, 0.20f)));
                     items.Add(CreateCartItem(cartObj.transform, "Đèn Pin Cầm Tay", 15.00f, new Color(0.2f, 0.2f, 0.25f), new Vector3(0.10f, 0.10f, 0.28f)));
-                    CustomerIDCard id5 = CreateIDCard(cartObj.transform, "Đối Tượng Vô Danh", 0, "CORRUPTED-DNA", "Ranh giới hư không Blackwood", true);
-                    _npcPrefab.SetupCustomer("Kẻ kỳ quái mắt đỏ", true, items, id5, 50.0f);
+                    CustomerIDCard id5 = CreateIDCard(cartObj.transform, "Đối Tượng Vô Danh", 0, "ANOMALY-CORRUPT", "Ranh giới hư không Blackwood", true);
+                    _npcPrefab.SetupCustomer("Kẻ kỳ quái trùm đầu", true, items, id5, 50.0f);
                     break;
             }
 

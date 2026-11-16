@@ -65,6 +65,23 @@ namespace MidnightMart.Combat
             GameEvents.TriggerWeaponAmmoChanged(_currentAmmo, _reserveAmmo);
         }
 
+        /// <summary>
+        /// Nâng cấp / Mua sắm vũ khí mới từ máy tính quản trị tiệm (Shotgun, Súng trường, SMG liên thanh).
+        /// </summary>
+        public void UpgradeWeapon(string newName, int newMaxAmmo, int newPellets, float newDamage, float newSpread, float newReloadDuration, int bonusReserve)
+        {
+            _weaponName = newName;
+            _maxAmmo = newMaxAmmo;
+            _pelletCount = newPellets;
+            _damagePerPellet = newDamage;
+            _spreadAngle = newSpread;
+            _reloadDuration = newReloadDuration;
+            _currentAmmo = _maxAmmo;
+            _reserveAmmo += bonusReserve;
+            GameEvents.TriggerWeaponReloaded(_currentAmmo, _reserveAmmo);
+            GameEvents.TriggerSubtitle("Kho Vũ khí", $"<color=#00FFAA>★ ĐÃ MUA & TRANG BỊ: {newName.ToUpper()}!</color>", 4.5f);
+        }
+
         private void Awake()
         {
             _currentAmmo = _maxAmmo;

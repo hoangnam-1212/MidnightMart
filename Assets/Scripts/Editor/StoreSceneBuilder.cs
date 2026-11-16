@@ -1519,7 +1519,7 @@ namespace MidnightMart.EditorTools
             GameObject drawerObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drawerObj.name = "Secret_Under_Drawer";
             drawerObj.transform.SetParent(counterObj.transform);
-            drawerObj.transform.localPosition = new Vector3(-0.35f, 0.35f, 0f);
+            drawerObj.transform.localPosition = new Vector3(-0.48f, 0.35f, -0.75f);
             drawerObj.transform.localRotation = Quaternion.identity;
             drawerObj.transform.localScale = new Vector3(0.45f, 0.28f, 0.85f);
             drawerObj.GetComponent<Renderer>().sharedMaterial = woodMat;
@@ -1531,11 +1531,11 @@ namespace MidnightMart.EditorTools
             }
             secretDrawer = drawerObj.AddComponent<SecretDrawer>();
 
-            // BÀN RIÊNG PHÍA SAU CHO MÁY TÍNH (Back Staff Desk đặt lùi xa quầy tại X = -5.8m, Z = -3.2m)
-            // Bố trí khoa học, tinh tế: Màn hình, bàn phím, chuột, đèn bàn góc hắt sáng ấm, bỏ ghế xoay theo yêu cầu người chơi
+            // BÀN CÁNH CHỮ L CHO MÁY TÍNH (Nối vuông góc với quầy tại X = -3.4m, Z = -4.1m tạo hình chữ L tiện lợi)
+            // Bố trí khoa học, tinh tế: Màn hình, bàn phím, chuột ngay bên tay phải nhân viên thu ngân
             GameObject backDeskObj = new GameObject("Back_Staff_Desk");
             backDeskObj.transform.SetParent(parent);
-            backDeskObj.transform.position = new Vector3(-5.8f, 0f, -3.2f);
+            backDeskObj.transform.position = new Vector3(-3.4f, 0f, -4.1f);
 
             // Mặt bàn gỗ làm việc (Tabletop cao 0.74m tiêu chuẩn văn phòng, trải dài 2.0m theo trục X, rộng 0.85m theo trục Z)
             GameObject backDeskTable = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1618,12 +1618,12 @@ namespace MidnightMart.EditorTools
             lampL.intensity = 35f;
             lampL.color = new Color(1.0f, 0.88f, 0.72f);
 
-            // Máy tính quầy thu ngân (Store Desktop Computer Terminal) đặt trang trọng trên Bàn Sau
-            // Toàn bộ trục Y đặt về 0 (Quaternion.identity) theo đúng chỉ đạo của người chơi
+            // Máy tính quầy thu ngân (Store Desktop Computer Terminal) đặt trang trọng trên Bàn cánh chữ L
+            // Xoay 180 độ theo trục Y để màn hình và bàn phím quay trực diện vào mắt người chơi
             GameObject pcTerminal = new GameObject("Store_Desktop_Computer");
             pcTerminal.transform.SetParent(backDeskObj.transform);
             pcTerminal.transform.localPosition = new Vector3(0f, 0.76f, 0f);
-            pcTerminal.transform.localRotation = Quaternion.identity;
+            pcTerminal.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
 
             // Chân đế & Trụ màn hình
             GameObject pcBase = GameObject.CreatePrimitive(PrimitiveType.Cube);

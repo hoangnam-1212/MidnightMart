@@ -264,6 +264,41 @@ namespace MidnightMart.UI
             });
         }
 
+        // ==================== KHO VŨ KHÍ NÂNG CẤP (CẦY TIỀN MUA SẮM) ====================
+
+        public void BuyShotgunWeapon()
+        {
+            TryBuySupply("Khẩu Shotgun Săn 2 Nòng (12-Gauge)", 120f, () =>
+            {
+                if (_weaponController != null)
+                {
+                    _weaponController.UpgradeWeapon("Shotgun Săn 12-Gauge", 2, 8, 28f, 2.8f, 1.8f, 12);
+                }
+            });
+        }
+
+        public void BuyHuntingRifleWeapon()
+        {
+            TryBuySupply("Súng Trường Săn Bắn (.308 Sniper)", 250f, () =>
+            {
+                if (_weaponController != null)
+                {
+                    _weaponController.UpgradeWeapon("Súng Trường .308", 10, 1, 110f, 0.1f, 1.5f, 20);
+                }
+            });
+        }
+
+        public void BuySubmachineGunWeapon()
+        {
+            TryBuySupply("Súng Tiểu Liên Đêm (Night SMG 9mm)", 350f, () =>
+            {
+                if (_weaponController != null)
+                {
+                    _weaponController.UpgradeWeapon("Tiểu Liên SMG 9mm", 30, 1, 45f, 0.8f, 1.2f, 60);
+                }
+            });
+        }
+
         private void TryBuySupply(string itemName, float cost, System.Action onPurchased)
         {
             float currentMoney = NightShiftManager.Instance != null ? NightShiftManager.Instance.CurrentMoney : 150f;

@@ -127,10 +127,10 @@ namespace MidnightMart.UI
                 }
             }
 
-            // Nhấn F hoặc Enter để đọc nhanh câu thoại tiếp theo hoặc đóng phụ đề (Tách rời khỏi phím Space nhảy)
+            // Nhấn Space hoặc Enter để đọc nhanh câu thoại tiếp theo hoặc đóng thoại (Chặn nhảy khi thoại đang hiện)
             if (_isDialogueActive)
             {
-                bool skipPressed = Keyboard.current != null && (Keyboard.current.fKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame);
+                bool skipPressed = Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame);
                 if (skipPressed)
                 {
                     AdvanceOrCloseDialogue();
@@ -416,6 +416,7 @@ namespace MidnightMart.UI
         private void ShowDialogue(string speaker, string content, float duration)
         {
             _isDialogueActive = true;
+            GameEvents.TriggerDialogueStateChanged(true);
 
             if (_subtitlePanel != null)
             {
@@ -451,7 +452,7 @@ namespace MidnightMart.UI
             if (_subtitlePromptTMP != null)
             {
                 _subtitlePromptTMP.fontSize = 20f;
-                _subtitlePromptTMP.text = LocalizationManager.T("<color=#FFE600>[F] Tiếp tục >></color>", "<color=#FFE600>[F] Continue >></color>");
+                _subtitlePromptTMP.text = LocalizationManager.T("<color=#FFE600>[Space / Enter] Tiếp tục >></color>", "<color=#FFE600>[Space / Enter] Continue >></color>");
             }
 
             if (_autoDismissDialogueCoroutine != null)
@@ -486,6 +487,7 @@ namespace MidnightMart.UI
             else
             {
                 _isDialogueActive = false;
+                GameEvents.TriggerDialogueStateChanged(false);
                 if (_subtitlePanel != null)
                 {
                     _subtitlePanel.SetActive(false);

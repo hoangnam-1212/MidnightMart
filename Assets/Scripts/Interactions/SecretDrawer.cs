@@ -49,15 +49,15 @@ namespace MidnightMart.Interactions
         {
             if (!_isOpen)
             {
-                return "[E] Kéo mở ngăn kéo";
+                return "[E / Chuột Trái] Kéo mở ngăn kéo bí mật";
             }
 
             if (!_hasTakenShotgun)
             {
-                return "[E] Nhặt Súng Lục 9mm & Đóng lại";
+                return "[E / Chuột Trái] Nhặt Súng Lục 9mm & Đóng lại";
             }
 
-            return "[E] Đóng ngăn kéo lại";
+            return "[E / Chuột Trái] Đóng ngăn kéo lại";
         }
 
         public bool CanInteract()

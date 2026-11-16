@@ -223,8 +223,12 @@ namespace MidnightMart.Player
                                 !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
                                 !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
                             {
-                                // Bị tường hoặc vách ngăn che khuất tầm nhìn -> Ngừng quét, không cho nhặt xuyên tường!
-                                break;
+                                string occName = occluderHit.collider.name.ToLower();
+                                if (occName.Contains("wall") || occName.Contains("glass") || occName.Contains("door_frame") || occName.Contains("ceiling") || occName.Contains("storefront") || occluderHit.collider.CompareTag("Wall"))
+                                {
+                                    // Bị tường hoặc kính che khuất tầm nhìn -> Ngừng quét, không cho nhặt xuyên tường!
+                                    break;
+                                }
                             }
                         }
                     }
@@ -234,11 +238,15 @@ namespace MidnightMart.Player
                     break; // Tìm thấy mục tiêu hợp lệ gần nhất
                 }
 
-                // Nếu gặp bức tường, vách ngăn, cửa đóng (Collider đặc không phải trigger và không có IInteractable):
+                // Nếu gặp bức tường kiến trúc thực sự (Tường nhà, kính mặt tiền):
                 if (!hit.collider.isTrigger)
                 {
-                    // Tia nhìn bị chặn bởi tường cứng! Ngăn tương tác với các vật thể phía sau tường
-                    break;
+                    string colName = hit.collider.name.ToLower();
+                    if (colName.Contains("wall") || colName.Contains("glass") || colName.Contains("door_frame") || colName.Contains("ceiling") || colName.Contains("storefront") || hit.collider.CompareTag("Wall"))
+                    {
+                        // Tia nhìn bị chặn bởi tường cứng! Ngăn tương tác với các vật thể phía sau tường
+                        break;
+                    }
                 }
             }
 
@@ -288,7 +296,11 @@ namespace MidnightMart.Player
                                     !occluderHit.collider.transform.IsChildOf(hit.collider.transform) &&
                                     !hit.collider.transform.IsChildOf(occluderHit.collider.transform))
                                 {
-                                    break;
+                                    string occName = occluderHit.collider.name.ToLower();
+                                    if (occName.Contains("wall") || occName.Contains("glass") || occName.Contains("door_frame") || occName.Contains("ceiling") || occName.Contains("storefront") || occluderHit.collider.CompareTag("Wall"))
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -300,7 +312,11 @@ namespace MidnightMart.Player
 
                     if (!hit.collider.isTrigger)
                     {
-                        break;
+                        string colName = hit.collider.name.ToLower();
+                        if (colName.Contains("wall") || colName.Contains("glass") || colName.Contains("door_frame") || colName.Contains("ceiling") || colName.Contains("storefront") || hit.collider.CompareTag("Wall"))
+                        {
+                            break;
+                        }
                     }
                 }
             }

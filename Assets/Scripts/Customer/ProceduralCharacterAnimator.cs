@@ -18,7 +18,6 @@ namespace MidnightMart.Customer
         [SerializeField] private float _walkFrequency = 6.0f;       // Tần số bước chân
         [SerializeField] private float _armSwingAngle = 24.0f;      // Góc vung tay
         [SerializeField] private float _legSwingAngle = 28.0f;      // Góc vung chân
-        [SerializeField] private float _bodyBobHeight = 0.035f;     // Độ nhún bước chân
         [SerializeField] private float _bodySwayAngle = 3.5f;       // Độ lắc hông
 
         [Header("Thông số Đứng Chờ (Idle Parameters)")]
@@ -42,6 +41,7 @@ namespace MidnightMart.Customer
         private Quaternion _hipsInitialRot;
         private Vector3 _torsoInitialPos;
         private Quaternion _torsoInitialRot;
+        private Vector3 _torsoInitialScale = Vector3.one;
 
         public bool IsWalking
         {
@@ -127,6 +127,7 @@ namespace MidnightMart.Customer
             {
                 _torsoInitialPos = _torso.localPosition;
                 _torsoInitialRot = _torso.localRotation;
+                _torsoInitialScale = _torso.localScale;
             }
 
             // Nếu model có Animator rỗng chưa gán Controller thì tắt để không override cử động xương
@@ -156,15 +157,14 @@ namespace MidnightMart.Customer
         {
             float t = Time.time * _walkFrequency * _walkSpeedMultiplier;
 
-            // 1. Nhún hông/thân theo từng bước chân (Bobbing tác động lên xương con, không khóa GameObject gốc)
-            float bob = Mathf.Abs(Mathf.Sin(t)) * _bodyBobHeight;
+            // 1. Giữ nguyên vị trí xương hông và thân cố định vững vàng (Tuyệt đối không nhún/dời localPosition gây bay nửa người)
             if (_hips != null)
             {
-                _hips.localPosition = _hipsInitialPos + new Vector3(0f, bob, 0f);
+                _hips.localPosition = _hipsInitialPos;
             }
-            else if (_torso != null)
+            if (_torso != null)
             {
-                _torso.localPosition = _torsoInitialPos + new Vector3(0f, bob, 0f);
+                _torso.localPosition = _torsoInitialPos;
             }
 
             // 2. Nghiêng hông nhẹ theo nhịp đi
@@ -219,7 +219,7 @@ namespace MidnightMart.Customer
             float breath = Mathf.Sin(Time.time * _idleBreathFrequency) * _idleBreathAmount;
             if (_torso != null)
             {
-                _torso.localScale = Vector3.one + new Vector3(breath * 0.5f, breath * 0.3f, breath);
+                _torso.localScale = _torsoInitialScale + new Vector3(breath * 0.02f, breath * 0.01f, breath * 0.02f);
             }
 
             // Đưa tay chân về tư thế nghỉ
