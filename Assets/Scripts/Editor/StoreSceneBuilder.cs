@@ -1147,7 +1147,7 @@ namespace MidnightMart.EditorTools
                 lampLight.range = 22f;
                 lampLight.spotAngle = 68f;
                 lampLight.innerSpotAngle = 38f;
-                lampLight.intensity = 6500f; // Cường độ mạnh rõ nét trên mặt đường
+                lampLight.intensity = 2200f; // Độ sáng vừa phải tạo không gian đêm u ám rùng rợn
                 lampLight.color = new Color(1.0f, 0.88f, 0.58f);
                 lampLight.shadows = LightShadows.Soft;
 
@@ -4513,7 +4513,7 @@ namespace MidnightMart.EditorTools
             }
             moonLight.enabled = true;
             moonLight.color = new Color(0.38f, 0.48f, 0.72f); // Ánh trăng xanh bạc rùng rợn
-            moonLight.intensity = 1.8f; // Cường độ ánh trăng dịu nhẹ soi rõ cảnh vật
+            moonLight.intensity = 0.85f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
             moonLight.transform.rotation = Quaternion.Euler(58f, -35f, 0f);
 
             // 3. Tạo bầu trời đêm mây tối và bầy sao lấp lánh

@@ -78,8 +78,11 @@ namespace MidnightMart.UI
             public float Duration;
         }
 
+        public static TutorialHUD Instance { get; private set; }
+
         private readonly System.Collections.Generic.Queue<DialogueEntry> _dialogueQueue = new System.Collections.Generic.Queue<DialogueEntry>();
         private bool _isDialogueActive;
+        public bool IsDialogueActive => _isDialogueActive;
         private string _heldItemName;
         private int _currentAmmo = 5;
         private int _reserveAmmo = 15;
@@ -94,6 +97,7 @@ namespace MidnightMart.UI
 
         private void Awake()
         {
+            Instance = this;
             EnforceCanvasAndHUDLayout();
 
             if (_promptPanel != null) _promptPanel.SetActive(false);
@@ -127,12 +131,15 @@ namespace MidnightMart.UI
                 }
             }
 
-            // Nhấn Space hoặc Enter để đọc nhanh câu thoại tiếp theo hoặc đóng thoại (Chặn nhảy khi thoại đang hiện)
+            // Nhấn Space hoặc Enter để đọc nhanh câu thoại tiếp theo hoặc đóng thoại (Chặn nhảy hoàn toàn khi thoại đang hiện)
             if (_isDialogueActive)
             {
+                PlayerMovement.SuppressJump(0.45f);
+
                 bool skipPressed = Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame);
                 if (skipPressed)
                 {
+                    PlayerMovement.SuppressJump(0.5f);
                     AdvanceOrCloseDialogue();
                 }
             }
@@ -416,6 +423,7 @@ namespace MidnightMart.UI
         private void ShowDialogue(string speaker, string content, float duration)
         {
             _isDialogueActive = true;
+            PlayerMovement.SuppressJump(0.5f);
             GameEvents.TriggerDialogueStateChanged(true);
 
             if (_subtitlePanel != null)
@@ -473,6 +481,8 @@ namespace MidnightMart.UI
         /// </summary>
         private void AdvanceOrCloseDialogue()
         {
+            PlayerMovement.SuppressJump(0.5f);
+
             if (_autoDismissDialogueCoroutine != null)
             {
                 StopCoroutine(_autoDismissDialogueCoroutine);

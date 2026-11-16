@@ -41,6 +41,17 @@ namespace MidnightMart.Player
         private float _defaultCameraY;
         private float _bobTimer;
         private bool _isDialogueOpen;
+        private static float _jumpLockoutUntilTime;
+
+        /// <summary>
+        /// Khóa toàn bộ hành động nhảy trong một khoảng thời gian nhất định (Dùng khi đối thoại, chuyển thoại, mở UI).
+        /// </summary>
+        public static void SuppressJump(float duration = 0.45f)
+        {
+            _jumpLockoutUntilTime = Mathf.Max(_jumpLockoutUntilTime, Time.unscaledTime + duration);
+        }
+
+        public static bool IsJumpLocked => Time.unscaledTime < _jumpLockoutUntilTime;
 
         private void Awake()
         {
@@ -70,6 +81,12 @@ namespace MidnightMart.Player
             if (_isDialogueOpen)
             {
                 _moveInput = Vector2.zero;
+                SuppressJump(0.5f);
+            }
+            else
+            {
+                // Khi vừa đóng thoại, khóa phím nhảy 0.45s để triệt tiêu phím Space vừa dùng để đóng thoại
+                SuppressJump(0.45f);
             }
         }
 
@@ -117,7 +134,13 @@ namespace MidnightMart.Player
         /// </summary>
         public void Jump()
         {
-            if (_isDialogueOpen || Cursor.lockState != CursorLockMode.Locked) return;
+            if (_isDialogueOpen || 
+                IsJumpLocked || 
+                Cursor.lockState != CursorLockMode.Locked ||
+                (MidnightMart.UI.TutorialHUD.Instance != null && MidnightMart.UI.TutorialHUD.Instance.IsDialogueActive))
+            {
+                return;
+            }
 
             if (_characterController != null && _characterController.isGrounded && !_isCrouching)
             {
