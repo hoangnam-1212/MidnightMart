@@ -261,6 +261,13 @@ namespace MidnightMart.EditorTools
             if (emissive.HasValue && mat.HasProperty("_EmissiveColor"))
             {
                 mat.SetColor("_EmissiveColor", emissive.Value);
+                if (mat.HasProperty("_EmissiveColorLDR")) mat.SetColor("_EmissiveColorLDR", Color.white);
+                if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", emissive.Value);
+                if (mat.HasProperty("_EmissiveExposureWeight")) mat.SetFloat("_EmissiveExposureWeight", 0f);
+                if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 1f);
+                if (mat.HasProperty("_EmissiveIntensity")) mat.SetFloat("_EmissiveIntensity", 25000f);
+                mat.EnableKeyword("_EMISSIVE_COLOR_MAP");
+                mat.EnableKeyword("_EMISSION");
             }
             return mat;
         }
@@ -598,13 +605,30 @@ namespace MidnightMart.EditorTools
                 tubeObj.transform.SetParent(mainLightsRoot.transform);
                 tubeObj.transform.position = lightPositions[i];
                 tubeObj.transform.localScale = new Vector3(0.3f, 0.1f, 2.5f);
-                tubeObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_Fixture", Color.white, 0.5f, Color.white * 1.5f);
+                tubeObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_Fixture", Color.white, 0.5f, new Color(2.5f, 2.7f, 3.0f));
 
+                // Ánh sáng tản mờ hắt trần chống tối góc khuất
                 Light tubeLight = tubeObj.AddComponent<Light>();
                 tubeLight.type = LightType.Point;
-                tubeLight.range = 14f;
-                tubeLight.intensity = 1800f;
+                tubeLight.range = 5f;
+                tubeLight.intensity = 200f;
                 tubeLight.color = new Color(0.95f, 0.98f, 1.0f);
+                tubeLight.shadows = LightShadows.None;
+
+                // Nguồn sáng Downlight Spot CHIẾU THẲNG VUÔNG GÓC XUỐNG SÀN NHÀ (Rotation = 90, 0, 0)
+                GameObject spotObj = new GameObject($"Fixture_Downlight_Spot_{i + 1}");
+                spotObj.transform.SetParent(tubeObj.transform);
+                spotObj.transform.localPosition = new Vector3(0f, -0.15f, 0f);
+                spotObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+                Light downLight = spotObj.AddComponent<Light>();
+                downLight.type = LightType.Spot;
+                downLight.range = 8.5f;
+                downLight.spotAngle = 105f;
+                downLight.innerSpotAngle = 65f;
+                downLight.intensity = 2600f;
+                downLight.color = new Color(0.96f, 0.98f, 1.0f);
+                downLight.shadows = LightShadows.Soft;
             }
 
             // Đèn khẩn cấp màu đỏ (Cho sự kiện Cúp điện 03:30 AM - đặt tại trung tâm trần Z = 5.0m)
@@ -1144,10 +1168,10 @@ namespace MidnightMart.EditorTools
 
                 Light lampLight = spotObj.AddComponent<Light>();
                 lampLight.type = LightType.Spot;
-                lampLight.range = 16f;
-                lampLight.spotAngle = 50f;
-                lampLight.innerSpotAngle = 25f;
-                lampLight.intensity = 950f; // Độ sáng tập trung vừa phải, tạo không gian đêm u ám rùng rợn
+                lampLight.range = 12f;
+                lampLight.spotAngle = 42f;
+                lampLight.innerSpotAngle = 20f;
+                lampLight.intensity = 600f; // Độ sáng tập trung vừa phải, tạo không gian đêm u ám rùng rợn
                 lampLight.color = new Color(1.0f, 0.88f, 0.58f);
                 lampLight.shadows = LightShadows.Soft;
 
@@ -4513,7 +4537,7 @@ namespace MidnightMart.EditorTools
             }
             moonLight.enabled = true;
             moonLight.color = new Color(0.38f, 0.48f, 0.72f); // Ánh trăng xanh bạc rùng rợn
-            moonLight.intensity = 0.20f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
+            moonLight.intensity = 0.04f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
             moonLight.transform.rotation = Quaternion.Euler(58f, -35f, 0f);
 
             // 3. Tạo bầu trời đêm mây tối và bầy sao lấp lánh
@@ -4549,7 +4573,8 @@ namespace MidnightMart.EditorTools
                 exp = profile.Add<Exposure>(true);
             }
             exp.mode.Override(ExposureMode.Fixed);
-            exp.fixedExposure.Override(9.0f);
+            exp.fixedExposure.Override(9.5f);
+            exp.compensation.Override(-0.4f);
 
             // 6. Sương mù dày đặc rùng rợn (Dark Eerie Fog) hắt màu xanh chàm u tối
             if (!profile.TryGet<Fog>(out Fog fog))
