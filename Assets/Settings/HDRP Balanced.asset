@@ -22,9 +22,9 @@ MonoBehaviour:
     enableSSAO: 0
     enableSubsurfaceScattering: 0
     enableTransmission: 0
-    enableAtmosphericScattering: 0
-    enableVolumetrics: 0
-    enableReprojectionForVolumetrics: 0
+    enableAtmosphericScattering: 1
+    enableVolumetrics: 1
+    enableReprojectionForVolumetrics: 1
     enableLightLayers: 0
     enableExposureControl: 1
     diffuseGlobalDimmer: 0
@@ -67,9 +67,9 @@ MonoBehaviour:
     enableSSAO: 0
     enableSubsurfaceScattering: 0
     enableTransmission: 0
-    enableAtmosphericScattering: 0
-    enableVolumetrics: 0
-    enableReprojectionForVolumetrics: 0
+    enableAtmosphericScattering: 1
+    enableVolumetrics: 1
+    enableReprojectionForVolumetrics: 1
     enableLightLayers: 0
     enableExposureControl: 1
     diffuseGlobalDimmer: 0
@@ -112,9 +112,9 @@ MonoBehaviour:
     enableSSAO: 0
     enableSubsurfaceScattering: 0
     enableTransmission: 0
-    enableAtmosphericScattering: 0
-    enableVolumetrics: 0
-    enableReprojectionForVolumetrics: 0
+    enableAtmosphericScattering: 1
+    enableVolumetrics: 1
+    enableReprojectionForVolumetrics: 1
     enableLightLayers: 0
     enableExposureControl: 1
     diffuseGlobalDimmer: 0

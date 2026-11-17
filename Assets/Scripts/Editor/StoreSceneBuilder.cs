@@ -246,7 +246,7 @@ namespace MidnightMart.EditorTools
             }
         }
 
-        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null, float emissiveIntensity = 1200f)
+        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null, float emissiveIntensity = 80f)
         {
             Shader shader = Shader.Find("HDRP/Lit");
             if (shader == null) shader = Shader.Find("Standard");
@@ -605,17 +605,9 @@ namespace MidnightMart.EditorTools
                 tubeObj.transform.SetParent(mainLightsRoot.transform);
                 tubeObj.transform.position = lightPositions[i];
                 tubeObj.transform.localScale = new Vector3(0.3f, 0.1f, 2.5f);
-                tubeObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_Fixture", Color.white, 0.5f, new Color(2.5f, 2.7f, 3.0f));
+                tubeObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_Fixture", Color.white, 0.5f, new Color(0.95f, 0.98f, 1.0f), 60f);
 
-                // Ánh sáng tản mờ hắt trần chống tối góc khuất (dịu nhẹ vừa phải)
-                Light tubeLight = tubeObj.AddComponent<Light>();
-                tubeLight.type = LightType.Point;
-                tubeLight.range = 5f;
-                tubeLight.intensity = 35f;
-                tubeLight.color = new Color(0.95f, 0.98f, 1.0f);
-                tubeLight.shadows = LightShadows.None;
-
-                // Nguồn sáng Downlight Spot CHIẾU THẲNG VUÔNG GÓC XUỐNG SÀN NHÀ (Rotation = 90, 0, 0)
+                // Nguồn sáng Downlight Spot CHIẾU THẲNG VUÔNG GÓC XUỐNG SÀN NHÀ (Rotation = 90, 0, 0), gom chùm tia rọi xuống, không tỏa ngang gây chói
                 GameObject spotObj = new GameObject($"Fixture_Downlight_Spot_{i + 1}");
                 spotObj.transform.SetParent(tubeObj.transform);
                 spotObj.transform.localPosition = new Vector3(0f, -0.15f, 0f);
@@ -623,10 +615,10 @@ namespace MidnightMart.EditorTools
 
                 Light downLight = spotObj.AddComponent<Light>();
                 downLight.type = LightType.Spot;
-                downLight.range = 8.5f;
-                downLight.spotAngle = 105f;
-                downLight.innerSpotAngle = 65f;
-                downLight.intensity = 420f;
+                downLight.range = 7.5f;
+                downLight.spotAngle = 60f;
+                downLight.innerSpotAngle = 30f;
+                downLight.intensity = 260f;
                 downLight.color = new Color(0.96f, 0.98f, 1.0f);
                 downLight.shadows = LightShadows.Soft;
             }
@@ -4540,8 +4532,8 @@ namespace MidnightMart.EditorTools
                 moonLight.type = LightType.Directional;
             }
             moonLight.enabled = true;
-            moonLight.color = new Color(0.28f, 0.38f, 0.58f); // Ánh trăng xanh đêm u tối
-            moonLight.intensity = 0.025f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
+            moonLight.color = new Color(0.32f, 0.42f, 0.62f); // Ánh trăng xanh dịu mát đêm u tối
+            moonLight.intensity = 0.20f; // Cường độ ánh trăng 0.20 lux dịu nhẹ giúp người chơi nhìn rõ cảnh vật rừng đêm không bị tối đen
             moonLight.transform.rotation = Quaternion.Euler(58f, -35f, 0f);
 
             // 3. Tạo bầu trời đêm mây tối và bầy sao lấp lánh
@@ -4571,14 +4563,14 @@ namespace MidnightMart.EditorTools
             }
             vol.sharedProfile = profile;
 
-            // 5. Cố định Exposure (Fixed Exposure = 10.5 EV) - Môi trường đêm tối u ám chuẩn horror, triệt tiêu loá sáng
+            // 5. Cố định Exposure (Fixed Exposure = 8.5 EV) - Môi trường đêm tối u ám rõ nét, không bị tối đen, dịu mắt
             if (!profile.TryGet<Exposure>(out Exposure exp))
             {
                 exp = profile.Add<Exposure>(true);
             }
             exp.mode.Override(ExposureMode.Fixed);
-            exp.fixedExposure.Override(10.5f);
-            exp.compensation.Override(-0.5f);
+            exp.fixedExposure.Override(8.5f);
+            exp.compensation.Override(0.0f);
 
             // 6. Sương mù dày đặc rùng rợn (Dark Eerie Fog) hắt màu xanh chàm cuộn trên mặt đường
             if (!profile.TryGet<Fog>(out Fog fog))
@@ -4588,14 +4580,14 @@ namespace MidnightMart.EditorTools
             fog.enabled.Override(true);
             fog.enableVolumetricFog.Override(true);
             fog.colorMode.Override(FogColorMode.ConstantColor);
-            fog.color.Override(new Color(0.06f, 0.09f, 0.14f));
-            fog.tint.Override(new Color(0.25f, 0.35f, 0.50f));
-            fog.albedo.Override(new Color(0.72f, 0.78f, 0.88f)); // Tán xạ sương mù cuồn cuộn bắt sáng đèn pha
-            fog.meanFreePath.Override(16.0f); // Tầm nhìn 16m mờ ảo sương mù dày đặc rùng rợn
-            fog.baseHeight.Override(-1.0f);
-            fog.maximumHeight.Override(12.0f); // Sương mù là đà mặt đường và hàng cây, bầu trời sao phía trên vẫn trong vắt
-            fog.anisotropy.Override(0.35f);
-            fog.depthExtent.Override(80.0f);
+            fog.color.Override(new Color(0.08f, 0.11f, 0.16f));
+            fog.tint.Override(new Color(0.35f, 0.45f, 0.60f));
+            fog.albedo.Override(new Color(0.80f, 0.86f, 0.92f)); // Tán xạ sương mù cuồn cuộn bắt sáng đèn pha
+            fog.meanFreePath.Override(25.0f); // Tầm nhìn 25m sương mù mờ ảo, huyền bí rõ nét
+            fog.baseHeight.Override(-2.0f);
+            fog.maximumHeight.Override(14.0f); // Sương mù là đà mặt đường và hàng cây, bầu trời sao phía trên vẫn trong vắt
+            fog.anisotropy.Override(0.40f);
+            fog.depthExtent.Override(96.0f);
 
             // 7. Visual Environment & Bầu trời HDRISky gắn texture cubemap mây đen bầy sao lấp lánh
             if (!profile.TryGet<VisualEnvironment>(out VisualEnvironment visualEnv))
@@ -4633,12 +4625,12 @@ namespace MidnightMart.EditorTools
             // Đồng bộ RenderSettings fallback cho Scene View
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.015f, 0.020f, 0.035f);
-            RenderSettings.ambientIntensity = 0.2f;
+            RenderSettings.ambientLight = new Color(0.035f, 0.045f, 0.075f);
+            RenderSettings.ambientIntensity = 0.35f;
             RenderSettings.reflectionIntensity = 0f;
             RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.015f, 0.025f, 0.040f);
-            RenderSettings.fogDensity = 0.04f;
+            RenderSettings.fogColor = new Color(0.030f, 0.040f, 0.060f);
+            RenderSettings.fogDensity = 0.025f;
         }
     }
 }
