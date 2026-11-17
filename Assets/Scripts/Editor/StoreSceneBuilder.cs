@@ -4596,14 +4596,14 @@ namespace MidnightMart.EditorTools
             {
                 visualEnv = profile.Add<VisualEnvironment>(true);
             }
-            int skyID = 1; // HDRISky ID in HDRP is 1
+            int skyID = 1; // 1 = HDRISky trong HDRP
             var skyAttr = System.Attribute.GetCustomAttribute(typeof(HDRISky), typeof(SkyUniqueID));
             if (skyAttr != null)
             {
-                var fields = skyAttr.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (fields.Length > 0 && fields[0].FieldType == typeof(int))
+                var field = skyAttr.GetType().GetField("uniqueID", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (field != null && field.FieldType == typeof(int))
                 {
-                    skyID = (int)fields[0].GetValue(skyAttr);
+                    skyID = (int)field.GetValue(skyAttr);
                 }
             }
             visualEnv.skyType.Override(skyID);
