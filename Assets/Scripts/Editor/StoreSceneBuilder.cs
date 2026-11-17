@@ -4485,7 +4485,6 @@ namespace MidnightMart.EditorTools
                 importer.textureType = TextureImporterType.Default;
                 importer.textureShape = TextureImporterShape.TextureCube;
                 importer.generateCubemap = TextureImporterGenerateCubemap.Cylindrical;
-                importer.seamlessCubemap = true;
                 importer.wrapMode = TextureWrapMode.Repeat;
                 importer.sRGBTexture = true;
                 importer.SaveAndReimport();
