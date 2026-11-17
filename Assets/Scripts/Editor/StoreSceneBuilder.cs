@@ -246,7 +246,7 @@ namespace MidnightMart.EditorTools
             }
         }
 
-        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null, float emissiveIntensity = 1800f)
+        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null, float emissiveIntensity = 1200f)
         {
             Shader shader = Shader.Find("HDRP/Lit");
             if (shader == null) shader = Shader.Find("Standard");
@@ -611,7 +611,7 @@ namespace MidnightMart.EditorTools
                 Light tubeLight = tubeObj.AddComponent<Light>();
                 tubeLight.type = LightType.Point;
                 tubeLight.range = 5f;
-                tubeLight.intensity = 80f;
+                tubeLight.intensity = 35f;
                 tubeLight.color = new Color(0.95f, 0.98f, 1.0f);
                 tubeLight.shadows = LightShadows.None;
 
@@ -626,7 +626,7 @@ namespace MidnightMart.EditorTools
                 downLight.range = 8.5f;
                 downLight.spotAngle = 105f;
                 downLight.innerSpotAngle = 65f;
-                downLight.intensity = 750f;
+                downLight.intensity = 420f;
                 downLight.color = new Color(0.96f, 0.98f, 1.0f);
                 downLight.shadows = LightShadows.Soft;
             }
@@ -1107,17 +1107,19 @@ namespace MidnightMart.EditorTools
                 Object.DestroyImmediate(wallR.GetComponent<Collider>());
             }
 
-            // 6. Hệ thống 14 Cột đèn đường chiếu sáng bố trí đều dọc cung đường 270m
-            // Thiết kế dạng Cần Vươn (Overhead Cantilever) - Đèn chiếu rọi THẲNG ĐỨNG XUỐNG MẶT ĐƯỜNG (Downlight Spot)
-            // TUYỆT ĐỐI KHÔNG DÙNG ĐÈN SÁNG TỎA (Point Light) để tránh làm sáng bệt không gian xung quanh
+            // 6. Hệ thống Cột đèn đường dọc cung đường rừng 270m (Phần lớn đã hỏng/tắt tối, chỉ 3 ngọn đèn hiếm hoi le lói trong sương mù)
             float[] lampZs = new float[] { -265f, -245f, -225f, -205f, -185f, -165f, -145f, -125f, -105f, -85f, -65f, -48f, -32f, -18f };
-            Material bulbMat = CreateColoredMaterial("Mat_StreetLampBulbGlow", new Color(1.0f, 0.92f, 0.65f), 0.2f, new Color(1.0f, 0.88f, 0.55f) * 4f);
+            Material bulbMat = CreateColoredMaterial("Mat_StreetLampBulbGlow", new Color(1.0f, 0.92f, 0.65f), 0.2f, new Color(1.0f, 0.88f, 0.55f) * 1.5f, 600f);
+            Material unlitBulbMat = CreateColoredMaterial("Mat_StreetLampBulbDead", new Color(0.18f, 0.18f, 0.20f), 0.8f);
 
             for (int i = 0; i < lampZs.Length; i++)
             {
                 float lz = lampZs[i];
                 float lx = RoadCurveUtility.GetRoadCenterX(lz);
                 float side = (i % 2 == 0) ? -1f : 1f;
+
+                // Chỉ 3 ngọn đèn còn sáng: i=1 (Z=-245), i=7 (Z=-125 khúc cua tai nạn), i=12 (Z=-32 gần siêu thị)
+                bool isLitLamp = (i == 1 || i == 7 || i == 12);
 
                 // Root không tỉ lệ (Scale 1,1,1) dựng tại vị trí lề đường để các phần tử con giữ đúng kích thước vật lý
                 GameObject lampRoot = new GameObject($"Street_Lamp_{i + 1}_Z{lz:0}");
@@ -1150,35 +1152,34 @@ namespace MidnightMart.EditorTools
                 head.GetComponent<Renderer>().sharedMaterial = poleMat;
                 Object.DestroyImmediate(head.GetComponent<Collider>());
 
-                // Mặt kính bóng đèn phát sáng vàng hướng xuống đáy chao đèn
+                // Mặt kính bóng đèn: Sáng mờ nếu còn điện, tối đen nếu đã hỏng
                 GameObject bulb = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 bulb.name = $"Lamp_Bulb_{i + 1}";
                 bulb.transform.SetParent(head.transform);
                 bulb.transform.localPosition = new Vector3(0f, -0.12f, 0f);
                 bulb.transform.localScale = new Vector3(0.85f, 0.05f, 0.85f);
-                bulb.GetComponent<Renderer>().sharedMaterial = bulbMat;
+                bulb.GetComponent<Renderer>().sharedMaterial = isLitLamp ? bulbMat : unlitBulbMat;
                 Object.DestroyImmediate(bulb.GetComponent<Collider>());
 
-                // Nguồn sáng Spot Light CHIẾU THẲNG ĐỨNG XUỐNG LÒNG ĐƯỜNG (Rotation = 90, 0, 0)
-                // Treo ở độ cao 5.15m trực tiếp phía trên làn xe chạy (cách tâm đường 1.7m), tạo thành vệt sáng tròn vàng rực rỡ, rõ nét trên mặt đường nhựa
+                // Nguồn sáng Spot Light rọi thẳng xuống mặt đường: Chỉ bật ở 3 cột đèn còn hoạt động
                 GameObject spotObj = new GameObject($"Lamp_Downlight_Spot_{i + 1}");
                 spotObj.transform.SetParent(lampRoot.transform);
                 spotObj.transform.localPosition = new Vector3(-side * 2.5f, 5.15f, 0f);
-                spotObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // Chiếu vuông góc thẳng xuống mặt đất
+                spotObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
 
                 Light lampLight = spotObj.AddComponent<Light>();
                 lampLight.type = LightType.Spot;
-                lampLight.range = 12f;
-                lampLight.spotAngle = 42f;
+                lampLight.range = 10f;
+                lampLight.spotAngle = 40f;
                 lampLight.innerSpotAngle = 20f;
-                lampLight.intensity = 600f; // Độ sáng tập trung vừa phải, tạo không gian đêm u ám rùng rợn
+                lampLight.intensity = isLitLamp ? 180f : 0f; // Đèn le lói 180 lumen trong đêm sương mù
                 lampLight.color = new Color(1.0f, 0.88f, 0.58f);
                 lampLight.shadows = LightShadows.Soft;
+                lampLight.enabled = isLitLamp;
 
-                // Một vài ngọn đèn chập chờn tạo cảm giác rùng rợn cô độc
-                if (i == 2 || i == 7 || i == 11)
+                if (isLitLamp && i == 7)
                 {
-                    spotObj.AddComponent<StreetLampFlicker>();
+                    spotObj.AddComponent<StreetLampFlicker>(); // Đèn tại hiện trường tai nạn chập chờn
                 }
             }
 
@@ -2852,14 +2853,14 @@ namespace MidnightMart.EditorTools
             GameObject bikeHeadlightObj = new GameObject("Motorbike_Headlight");
             bikeHeadlightObj.transform.SetParent(player.transform);
             bikeHeadlightObj.transform.localPosition = new Vector3(0f, 0.65f, 0.95f);
-            bikeHeadlightObj.transform.localRotation = Quaternion.Euler(12f, 0f, 0f);
+            bikeHeadlightObj.transform.localRotation = Quaternion.Euler(14f, 0f, 0f);
 
             Light bikeLight = bikeHeadlightObj.AddComponent<Light>();
             bikeLight.type = LightType.Spot;
-            bikeLight.range = 35f;
-            bikeLight.spotAngle = 38f;
-            bikeLight.innerSpotAngle = 20f;
-            bikeLight.intensity = 950f;
+            bikeLight.range = 32f;
+            bikeLight.spotAngle = 36f;
+            bikeLight.innerSpotAngle = 18f;
+            bikeLight.intensity = 600f;
             bikeLight.color = new Color(1.0f, 0.95f, 0.85f);
             bikeLight.enabled = false;
 
@@ -4539,8 +4540,8 @@ namespace MidnightMart.EditorTools
                 moonLight.type = LightType.Directional;
             }
             moonLight.enabled = true;
-            moonLight.color = new Color(0.38f, 0.48f, 0.72f); // Ánh trăng xanh bạc rùng rợn
-            moonLight.intensity = 0.04f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
+            moonLight.color = new Color(0.28f, 0.38f, 0.58f); // Ánh trăng xanh đêm u tối
+            moonLight.intensity = 0.025f; // Cường độ ánh trăng dịu nhẹ tạo bóng tối rừng đêm
             moonLight.transform.rotation = Quaternion.Euler(58f, -35f, 0f);
 
             // 3. Tạo bầu trời đêm mây tối và bầy sao lấp lánh
@@ -4570,26 +4571,31 @@ namespace MidnightMart.EditorTools
             }
             vol.sharedProfile = profile;
 
-            // 5. Cố định Exposure (Fixed Exposure = 9.0 EV) - Môi trường đêm chuẩn horror, không bị loá trắng
+            // 5. Cố định Exposure (Fixed Exposure = 10.5 EV) - Môi trường đêm tối u ám chuẩn horror, triệt tiêu loá sáng
             if (!profile.TryGet<Exposure>(out Exposure exp))
             {
                 exp = profile.Add<Exposure>(true);
             }
             exp.mode.Override(ExposureMode.Fixed);
-            exp.fixedExposure.Override(9.5f);
-            exp.compensation.Override(-0.4f);
+            exp.fixedExposure.Override(10.5f);
+            exp.compensation.Override(-0.5f);
 
-            // 6. Sương mù dày đặc rùng rợn (Dark Eerie Fog) hắt màu xanh chàm u tối
+            // 6. Sương mù dày đặc rùng rợn (Dark Eerie Fog) hắt màu xanh chàm cuộn trên mặt đường
             if (!profile.TryGet<Fog>(out Fog fog))
             {
                 fog = profile.Add<Fog>(true);
             }
             fog.enabled.Override(true);
             fog.enableVolumetricFog.Override(true);
-            fog.albedo.Override(new Color(0.035f, 0.050f, 0.085f)); // Sương mù xanh đêm mờ ảo
-            fog.meanFreePath.Override(48.0f);
-            fog.baseHeight.Override(0f);
-            fog.maximumHeight.Override(14f);
+            fog.colorMode.Override(FogColorMode.ConstantColor);
+            fog.color.Override(new Color(0.06f, 0.09f, 0.14f));
+            fog.tint.Override(new Color(0.25f, 0.35f, 0.50f));
+            fog.albedo.Override(new Color(0.72f, 0.78f, 0.88f)); // Tán xạ sương mù cuồn cuộn bắt sáng đèn pha
+            fog.meanFreePath.Override(16.0f); // Tầm nhìn 16m mờ ảo sương mù dày đặc rùng rợn
+            fog.baseHeight.Override(-1.0f);
+            fog.maximumHeight.Override(12.0f); // Sương mù là đà mặt đường và hàng cây, bầu trời sao phía trên vẫn trong vắt
+            fog.anisotropy.Override(0.35f);
+            fog.depthExtent.Override(80.0f);
 
             // 7. Visual Environment & Bầu trời HDRISky gắn texture cubemap mây đen bầy sao lấp lánh
             if (!profile.TryGet<VisualEnvironment>(out VisualEnvironment visualEnv))
@@ -4618,8 +4624,8 @@ namespace MidnightMart.EditorTools
             {
                 hdriSky.hdriSky.Override(starCube);
             }
-            hdriSky.exposure.Override(0.5f);
-            hdriSky.multiplier.Override(1.5f);
+            hdriSky.exposure.Override(0.2f);
+            hdriSky.multiplier.Override(1.0f);
 
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
@@ -4627,12 +4633,12 @@ namespace MidnightMart.EditorTools
             // Đồng bộ RenderSettings fallback cho Scene View
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.040f, 0.050f, 0.080f);
-            RenderSettings.ambientIntensity = 0.35f;
+            RenderSettings.ambientLight = new Color(0.015f, 0.020f, 0.035f);
+            RenderSettings.ambientIntensity = 0.2f;
             RenderSettings.reflectionIntensity = 0f;
             RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.025f, 0.035f, 0.060f);
-            RenderSettings.fogDensity = 0.025f;
+            RenderSettings.fogColor = new Color(0.015f, 0.025f, 0.040f);
+            RenderSettings.fogDensity = 0.04f;
         }
     }
 }

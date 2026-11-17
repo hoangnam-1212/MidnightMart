@@ -107,10 +107,10 @@ namespace MidnightMart.Player
             if (_bikeHeadlight != null)
             {
                 _bikeHeadlight.enabled = true;
-                _bikeHeadlight.intensity = 950f;
-                _bikeHeadlight.spotAngle = 38f;
-                _bikeHeadlight.innerSpotAngle = 20f;
-                _bikeHeadlight.range = 35f;
+                _bikeHeadlight.intensity = 600f;
+                _bikeHeadlight.spotAngle = 36f;
+                _bikeHeadlight.innerSpotAngle = 18f;
+                _bikeHeadlight.range = 32f;
             }
 
             if (_parkedBikeWorldModel != null)
@@ -153,10 +153,10 @@ namespace MidnightMart.Player
             if (_bikeHeadlight != null)
             {
                 _bikeHeadlight.enabled = true;
-                _bikeHeadlight.intensity = 950f;
-                _bikeHeadlight.spotAngle = 38f;
-                _bikeHeadlight.innerSpotAngle = 20f;
-                _bikeHeadlight.range = 35f;
+                _bikeHeadlight.intensity = 600f;
+                _bikeHeadlight.spotAngle = 36f;
+                _bikeHeadlight.innerSpotAngle = 18f;
+                _bikeHeadlight.range = 32f;
             }
 
             if (_parkedBikeWorldModel != null)
