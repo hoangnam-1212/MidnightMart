@@ -246,7 +246,7 @@ namespace MidnightMart.EditorTools
             }
         }
 
-        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null)
+        private static Material CreateColoredMaterial(string name, Color color, float smoothness = 0.4f, Color? emissive = null, float emissiveIntensity = 1800f)
         {
             Shader shader = Shader.Find("HDRP/Lit");
             if (shader == null) shader = Shader.Find("Standard");
@@ -265,7 +265,7 @@ namespace MidnightMart.EditorTools
                 if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", emissive.Value);
                 if (mat.HasProperty("_EmissiveExposureWeight")) mat.SetFloat("_EmissiveExposureWeight", 0f);
                 if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 1f);
-                if (mat.HasProperty("_EmissiveIntensity")) mat.SetFloat("_EmissiveIntensity", 25000f);
+                if (mat.HasProperty("_EmissiveIntensity")) mat.SetFloat("_EmissiveIntensity", emissiveIntensity);
                 mat.EnableKeyword("_EMISSIVE_COLOR_MAP");
                 mat.EnableKeyword("_EMISSION");
             }
@@ -607,11 +607,11 @@ namespace MidnightMart.EditorTools
                 tubeObj.transform.localScale = new Vector3(0.3f, 0.1f, 2.5f);
                 tubeObj.GetComponent<Renderer>().sharedMaterial = CreateColoredMaterial("Mat_Fixture", Color.white, 0.5f, new Color(2.5f, 2.7f, 3.0f));
 
-                // Ánh sáng tản mờ hắt trần chống tối góc khuất
+                // Ánh sáng tản mờ hắt trần chống tối góc khuất (dịu nhẹ vừa phải)
                 Light tubeLight = tubeObj.AddComponent<Light>();
                 tubeLight.type = LightType.Point;
                 tubeLight.range = 5f;
-                tubeLight.intensity = 200f;
+                tubeLight.intensity = 80f;
                 tubeLight.color = new Color(0.95f, 0.98f, 1.0f);
                 tubeLight.shadows = LightShadows.None;
 
@@ -626,7 +626,7 @@ namespace MidnightMart.EditorTools
                 downLight.range = 8.5f;
                 downLight.spotAngle = 105f;
                 downLight.innerSpotAngle = 65f;
-                downLight.intensity = 2600f;
+                downLight.intensity = 750f;
                 downLight.color = new Color(0.96f, 0.98f, 1.0f);
                 downLight.shadows = LightShadows.Soft;
             }
@@ -2848,17 +2848,18 @@ namespace MidnightMart.EditorTools
             mirrorR.GetComponent<Renderer>().sharedMaterial = bikeChromeMat;
             Object.DestroyImmediate(mirrorR.GetComponent<Collider>());
 
-            // Đèn pha xe máy siêu sáng quét sương mù đêm
+            // Đèn pha xe máy hướng thẳng xuống lòng đường phía trước xe, không rọi thẳng mặt người chơi
             GameObject bikeHeadlightObj = new GameObject("Motorbike_Headlight");
             bikeHeadlightObj.transform.SetParent(player.transform);
-            bikeHeadlightObj.transform.localPosition = new Vector3(0f, 0.85f, 0.55f);
-            bikeHeadlightObj.transform.localRotation = Quaternion.Euler(5f, 0f, 0f);
+            bikeHeadlightObj.transform.localPosition = new Vector3(0f, 0.65f, 0.95f);
+            bikeHeadlightObj.transform.localRotation = Quaternion.Euler(12f, 0f, 0f);
 
             Light bikeLight = bikeHeadlightObj.AddComponent<Light>();
             bikeLight.type = LightType.Spot;
-            bikeLight.range = 55f;
-            bikeLight.spotAngle = 50f;
-            bikeLight.intensity = 4500f;
+            bikeLight.range = 35f;
+            bikeLight.spotAngle = 38f;
+            bikeLight.innerSpotAngle = 20f;
+            bikeLight.intensity = 950f;
             bikeLight.color = new Color(1.0f, 0.95f, 0.85f);
             bikeLight.enabled = false;
 
@@ -4482,6 +4483,9 @@ namespace MidnightMart.EditorTools
             if (importer != null)
             {
                 importer.textureType = TextureImporterType.Default;
+                importer.textureShape = TextureImporterShape.TextureCube;
+                importer.generateCubemap = TextureImporterGenerateCubemap.Cylindrical;
+                importer.seamlessCubemap = true;
                 importer.wrapMode = TextureWrapMode.Repeat;
                 importer.sRGBTexture = true;
                 importer.SaveAndReimport();
@@ -4588,14 +4592,13 @@ namespace MidnightMart.EditorTools
             fog.baseHeight.Override(0f);
             fog.maximumHeight.Override(14f);
 
-            // 7. Visual Environment & Bầu trời PhysicallyBasedSky gắn texture mây sao
+            // 7. Visual Environment & Bầu trời HDRISky gắn texture cubemap mây đen bầy sao lấp lánh
             if (!profile.TryGet<VisualEnvironment>(out VisualEnvironment visualEnv))
             {
                 visualEnv = profile.Add<VisualEnvironment>(true);
             }
-            // Lấy ID tự động của PhysicallyBasedSky qua Reflection an toàn
-            int skyID = 1;
-            var skyAttr = System.Attribute.GetCustomAttribute(typeof(PhysicallyBasedSky), typeof(SkyUniqueID));
+            int skyID = 1; // HDRISky ID in HDRP is 1
+            var skyAttr = System.Attribute.GetCustomAttribute(typeof(HDRISky), typeof(SkyUniqueID));
             if (skyAttr != null)
             {
                 var fields = skyAttr.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -4607,16 +4610,17 @@ namespace MidnightMart.EditorTools
             visualEnv.skyType.Override(skyID);
             visualEnv.skyAmbientMode.Override(SkyAmbientMode.Dynamic);
 
-            if (!profile.TryGet<PhysicallyBasedSky>(out PhysicallyBasedSky pSky))
+            if (!profile.TryGet<HDRISky>(out HDRISky hdriSky))
             {
-                pSky = profile.Add<PhysicallyBasedSky>(true);
+                hdriSky = profile.Add<HDRISky>(true);
             }
-            if (starTex != null)
+            Cubemap starCube = AssetDatabase.LoadAssetAtPath<Cubemap>("Assets/Textures/Sky_Night_Stars_And_Clouds.png");
+            if (starCube != null)
             {
-                pSky.spaceEmissionTexture.Override(starTex);
-                pSky.spaceEmissionMultiplier.Override(4.0f);
+                hdriSky.hdriSky.Override(starCube);
             }
-            pSky.groundTint.Override(new Color(0.003f, 0.004f, 0.006f));
+            hdriSky.exposure.Override(0.5f);
+            hdriSky.multiplier.Override(1.5f);
 
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
